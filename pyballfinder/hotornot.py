@@ -1,5 +1,5 @@
 import cv2
-import numpy as np
+#import numpy as np
 """
     Convert image to HSV plane using cvtColor() function
     Extract red and blue colors from it using inRange() function
