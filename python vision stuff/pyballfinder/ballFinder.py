@@ -8,6 +8,7 @@ import math
 camera = cv2.VideoCapture(0)
 width,height = camera.get(3),camera.get(4)
 camera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,50)#time in milliseconds. 5 gives dark image. 100 gives bright image.
+best_contour=(width/2,height/2)#start best_contour at the center so that it doesn't crash if no blue in first frame
 while(1):
     _,capture = camera.read()
     capture = cv2.flip(capture,1)
@@ -31,7 +32,6 @@ while(1):
     contours,hierarchy = cv2.findContours(tobecontourdetected,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     
 #    find contour with maximum area and store it as best_contour
-#    @TODO program will crash if zero contours are detected in the first cycle. 
     max_area = 0
     for cnt in contours:
         area = cv2.contourArea(cnt)
