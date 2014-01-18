@@ -8,7 +8,6 @@ import math
 camera = cv2.VideoCapture(0)
 width,height = camera.get(3),camera.get(4)
 camera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,50)#time in milliseconds. 5 gives dark image. 100 gives bright image.
-best_contour=(width/2,height/2)#start best_contour at the center so that it doesn't crash if no blue in first frame
 while(1):
     _,capture = camera.read()
     capture = cv2.flip(capture,1)
@@ -32,31 +31,35 @@ while(1):
     contours,hierarchy = cv2.findContours(tobecontourdetected,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     
 #    find contour with maximum area and store it as best_contour
-    max_area = 0
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
-        if area > max_area:
-            max_area = area
-            best_contour = cnt
-    
-    perimeter = cv2.arcLength(best_contour, True)
-    real_area=max_area
-    calculated_area=math.pow((perimeter/(2*math.pi)),2)*math.pi
-    
-    area_difference=abs(real_area-calculated_area)
-    area_difference_to_area=int(area_difference/real_area*10)
-    
-    print(area_difference_to_area)
+    print(contours)
+    print"[]"
+    if(contours):  
+        max_area = 0
+        for cnt in contours:
+            area = cv2.contourArea(cnt)
+            if area > max_area:
+                max_area = area
+                best_contour = cnt
+        
+        perimeter = cv2.arcLength(best_contour, True)
+        real_area=max_area
+        calculated_area=math.pow((perimeter/(2*math.pi)),2)*math.pi
+        
+        area_difference=abs(real_area-calculated_area)
+        if(real_area!=0):
+            area_difference_to_area=int(area_difference/real_area*10)
+            print(area_difference_to_area)
     
 #    find centroids (fancy word for center of mass) of best_contour and draw a red circle there
-    M = cv2.moments(best_contour)#an image moment is the weighted average of a blob
-    cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
-    cv2.circle(capture,(cx,cy),5,(0,0,255),-1)        
-     
-    if(area_difference_to_area<15):
-        cv2.putText(capture,"Ball",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))
-    else:
-        cv2.putText(capture,"Bumper",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))       
+        M = cv2.moments(best_contour)#an image moment is the weighted average of a blob
+        cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
+        cv2.circle(capture,(cx,cy),5,(0,0,255),-1)        
+         
+        if(area_difference_to_area<15):
+            cv2.putText(capture,"Ball",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))
+        else:
+            cv2.putText(capture,"Bumper",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))         
+             
 #    show our image during different stages of processing
     cv2.imshow('capture',capture) 
     cv2.imshow('erodedbinary',dilatedagain)
