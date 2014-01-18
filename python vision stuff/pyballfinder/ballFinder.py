@@ -4,12 +4,12 @@ import math
 import ConfigParser
 import socket
 """
-    looks for blue blobs.  calculates the center of mass (centroid) of the biggest blob.  sorts into ball and bumper
+    looks for blobs.  calculates the center of mass (centroid) of the biggest blob.  sorts into ball and bumper, then send over tcp
 """
 #parse config stuff
 config = ConfigParser.RawConfigParser()
-config.read("vision.conf")
-exposure = int(config.get('pyballfinder','exposure'))
+config.read("..\\vision.conf")
+exposure = int(config.get('camera','exposure'))
 hue_lower = int(config.get('pyballfinder','hue_lower'))
 hue_upper = int(config.get('pyballfinder','hue_upper'))
 saturation_lower = int(config.get('pyballfinder','saturation_lower'))
@@ -66,7 +66,7 @@ while(1):
             else:
                 cv2.putText(capture,"Bumper",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))   
                 type = "bumper"      
-            message+=(type + ":" + str(cx) + "," + str(cy) +"," + str(real_area) + "\n")
+            message+=(type + ":" + str(cx) + "," + str(cy) +"," + str(int(real_area)) + "\n")
             
     if(message and send_over_network == "True"):
         s.send(message)
