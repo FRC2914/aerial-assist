@@ -1,5 +1,6 @@
 package edu.wilsonhs.demo;
 
+import com.sun.squawk.util.MathUtils;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.Jaguar;
@@ -13,16 +14,16 @@ import edu.wpi.first.wpilibj.SimpleRobot;
 public class GyroTest extends SimpleRobot {
 
 //Parameters
-    private static final double PROPORTION = 1 / 45;
+    private final double PROPORTION = 1.0 / 50;
 //Motors
-    private static final Jaguar RIGHT_FRONT = new Jaguar(2);
-    private static final Jaguar RIGHT_REAR = new Jaguar(3);
-    private static final Jaguar LEFT_FRONT = new Jaguar(4);
-    private static final Jaguar LEFT_REAR = new Jaguar(5);
+    private final Jaguar RIGHT_FRONT = new Jaguar(2);
+    private final Jaguar RIGHT_REAR = new Jaguar(3);
+    private final Jaguar LEFT_FRONT = new Jaguar(4);
+    private final Jaguar LEFT_REAR = new Jaguar(5);
 //Robot Drive
-    private static final RobotDrive CHASSIS = new RobotDrive(LEFT_FRONT, LEFT_REAR, RIGHT_FRONT, RIGHT_REAR);
+    private final RobotDrive CHASSIS = new RobotDrive(LEFT_FRONT, LEFT_REAR, RIGHT_FRONT, RIGHT_REAR);
 //Sensors
-    private static final Gyro GYRO = new Gyro(1);
+    private final Gyro GYRO = new Gyro(2);
 //Misc. Variables
     double lastGyroPosition = 0;
 
@@ -30,22 +31,24 @@ public class GyroTest extends SimpleRobot {
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() {
+        GYRO.setSensitivity(0.007);
         GYRO.reset();
         lastGyroPosition = 0;
         while (DriverStation.getInstance().isAutonomous() && DriverStation.getInstance().isEnabled()) {
             //get positions
             double currentPosition = GYRO.getAngle() % 360;//0 to 360 . (360 - gyro.getAngle())%360;
             double desiredPosition = 0;
-
             //Gyro Deadband: if gyro hasn't changed enough, ignore it
-            if (Math.abs(currentPosition - lastGyroPosition) < 0.01) {
+            if (Math.abs(currentPosition - lastGyroPosition) < 0.0001) {//change back to 0.01
                 currentPosition = lastGyroPosition;
             }
 
             //find the shortest path and calulate speed
             double speed = calculateShortestPath(currentPosition, desiredPosition, PROPORTION);
             //move at the given speed
+            //CHASSIS.mecanumDrive_Cartesian(0, 0, speed, 0);
             CHASSIS.arcadeDrive(0, speed);
+            //System.out.println(speed);
             lastGyroPosition = currentPosition;
         }
     }
@@ -68,13 +71,9 @@ public class GyroTest extends SimpleRobot {
         }
         int bestIndex = findIndexOfMin(absValueDifferences);
         double bestDiff = differences[bestIndex];
-        double speed = bestDiff * proportion;
-        if (speed > 1.0) {
-            speed = 1.0;
-        }
-        if (speed < -1.0) {
-            speed = -1.0;
-        }
+        System.out.println("best difference" + bestDiff);
+        double speed = (160.0/(1+1*MathUtils.pow(Math.E,-0.29 * bestDiff))-80.0)/100;//Our best fit curve
+        System.out.println("calculated speed"+speed);
         return speed;
     }
 
