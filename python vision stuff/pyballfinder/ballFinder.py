@@ -3,7 +3,7 @@ import numpy as np
 import math
 import ConfigParser
 """
-    looks for blue blobs.  calculates the center of mass (centroid) of the biggest blob.  Still far from done.
+    looks for blue blobs.  calculates the center of mass (centroid) of the biggest blob.  sorts into ball and bumper
 """
 
 config = ConfigParser.RawConfigParser()
