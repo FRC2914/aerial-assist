@@ -2,14 +2,13 @@ import cv2
 import numpy as np
 import math
 import ConfigParser
+import socket
 """
     looks for blue blobs.  calculates the center of mass (centroid) of the biggest blob.  sorts into ball and bumper
 """
-
+#parse config stuff
 config = ConfigParser.RawConfigParser()
 config.read("vision.conf")
-camera = cv2.VideoCapture(0)
-width,height = camera.get(3),camera.get(4)
 exposure = int(config.get('pyballfinder','exposure'))
 hue_lower = int(config.get('pyballfinder','hue_lower'))
 hue_upper = int(config.get('pyballfinder','hue_upper'))
@@ -19,31 +18,34 @@ value_lower = int(config.get('pyballfinder','value_lower'))
 value_upper = int(config.get('pyballfinder','value_upper'))
 min_contour_area = int(config.get('pyballfinder','min_contour_area'))
 area_difference_to_area_for_circle_detect = int(config.get('pyballfinder','area_difference_to_area_for_circle_detect'))
-print type(exposure)
-camera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)#time in milliseconds. 5 gives dark image. 100 gives bright image.
+crio_ip = config.get('network_communication','crio_ip')
+crio_tcp_loc_coords_port = int(config.get('network_communication','crio_tcp_loc_coords_port'))
+send_over_network = (config.get('pyballfinder','send_over_network'))
+#set up camera
+camera = cv2.VideoCapture(0)
+width,height = camera.get(3),camera.get(4)
+camera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 5 gives dark image. 100 gives bright image.
+#set up socket onnection
+if(send_over_network == "True"):
+    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    s.connect((crio_ip,crio_tcp_loc_coords_port))
+
 while(1):
     _,capture = camera.read()
-    capture = cv2.flip(capture,1)
-    
+    capture = cv2.flip(capture,1)   
 #    Convert image to HSV plane using cvtColor() function
-    hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV)
-    
+    hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV)   
 #    turn it into a binary image representing yellows
     inrangepixels = cv2.inRange(hsvcapture,np.array((hue_lower,saturation_lower,value_lower)),np.array((hue_upper,saturation_upper,value_upper)))#in opencv, HSV is 0-180,0-255,0-255
-
 #    Apply erosion and dilation and erosion again to eliminate noise and fill in gaps
-#     erode = cv2.erode(inrangepixels,None,iterations = 5)
-#     dilate = cv2.dilate(erode,None,iterations = 10)
-#     erodedagain = cv2.erode(dilate,None,iterations = 5)
     dilate = cv2.dilate(inrangepixels,None,iterations = 5)
     erode = cv2.erode(dilate,None,iterations = 10)
-    dilatedagain = cv2.dilate(erode,None,iterations = 5)
-    
+    dilatedagain = cv2.dilate(erode,None,iterations = 5)   
 #    find the contours
     tobecontourdetected = dilatedagain.copy()
     contours,hierarchy = cv2.findContours(tobecontourdetected,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     
-#    find contour with maximum area and store it as best_contour
+    message = ""
     
     for contour in contours:  
         real_area = cv2.contourArea(contour)
@@ -56,12 +58,18 @@ while(1):
 #    find centroids (fancy word for center of mass) of best_contour and draw a red circle there
             M = cv2.moments(contour)#an image moment is the weighted average of a blob
             cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
-            cv2.circle(capture,(cx,cy),5,(0,0,255),-1)                 
+            cv2.circle(capture,(cx,cy),5,(0,0,255),-1) 
+            type = ""                
             if(area_difference_to_area<area_difference_to_area_for_circle_detect):
                 cv2.putText(capture,"Ball",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))
+                type = "ball"
             else:
-                cv2.putText(capture,"Bumper",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))         
-             
+                cv2.putText(capture,"Bumper",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))   
+                type = "bumper"      
+            message+=(type + ":" + str(cx) + "," + str(cy) +"," + str(real_area) + "\n")
+            
+    if(message and send_over_network == "True"):
+        s.send(message)
 #    show our image during different stages of processing
     cv2.imshow('capture',capture) 
     cv2.imshow('erodedbinary',dilatedagain)
@@ -69,5 +77,6 @@ while(1):
     if cv2.waitKey(25) == 27:
         break
     
+s.close()    
 cv2.destroyAllWindows()
 camera.release()
