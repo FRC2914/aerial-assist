@@ -1,13 +1,24 @@
 import cv2
 import numpy as np
 import math
+import ConfigParser
 """
     looks for blue blobs.  calculates the center of mass (centroid) of the biggest blob.  Still far from done.
 """
 
+config = ConfigParser.RawConfigParser()
+config.read("vision.conf")
 camera = cv2.VideoCapture(0)
 width,height = camera.get(3),camera.get(4)
-camera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,50)#time in milliseconds. 5 gives dark image. 100 gives bright image.
+exposure = int(config.get('pyballfinder','exposure'))
+hue_lower = int(config.get('pyballfinder','hue_lower'))
+hue_upper = int(config.get('pyballfinder','hue_upper'))
+saturation_lower = int(config.get('pyballfinder','saturation_lower'))
+saturation_upper = int(config.get('pyballfinder','saturation_upper'))
+value_lower = int(config.get('pyballfinder','value_lower'))
+value_upper = int(config.get('pyballfinder','value_upper'))
+print type(exposure)
+camera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)#time in milliseconds. 5 gives dark image. 100 gives bright image.
 while(1):
     _,capture = camera.read()
     capture = cv2.flip(capture,1)
@@ -16,7 +27,7 @@ while(1):
     hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV)
     
 #    turn it into a binary image representing yellows
-    inrangepixels = cv2.inRange(hsvcapture,np.array((98,90,0)),np.array((118,204,220)))#in opencv, HSV is 0-180,0-255,0-255
+    inrangepixels = cv2.inRange(hsvcapture,np.array((hue_lower,saturation_lower,value_lower)),np.array((hue_upper,saturation_upper,value_upper)))#in opencv, HSV is 0-180,0-255,0-255
 
 #    Apply erosion and dilation and erosion again to eliminate noise and fill in gaps
 #     erode = cv2.erode(inrangepixels,None,iterations = 5)
@@ -31,8 +42,6 @@ while(1):
     contours,hierarchy = cv2.findContours(tobecontourdetected,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     
 #    find contour with maximum area and store it as best_contour
-    print(contours)
-    print"[]"
     if(contours):  
         max_area = 0
         for cnt in contours:
@@ -48,7 +57,7 @@ while(1):
         area_difference=abs(real_area-calculated_area)
         if(real_area!=0):
             area_difference_to_area=int(area_difference/real_area*10)
-            print(area_difference_to_area)
+#             print(area_difference_to_area)
     
 #    find centroids (fancy word for center of mass) of best_contour and draw a red circle there
         M = cv2.moments(best_contour)#an image moment is the weighted average of a blob
