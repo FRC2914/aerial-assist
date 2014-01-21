@@ -8,7 +8,7 @@ import socket
 """
 #parse config stuff
 config = ConfigParser.RawConfigParser()
-config.read("..\\vision.conf")
+config.read("../vision.conf")
 exposure = int(config.get('camera','exposure'))
 hue_lower = int(config.get('pyballfinder','hue_lower'))
 hue_upper = int(config.get('pyballfinder','hue_upper'))

@@ -14,7 +14,7 @@ c = cv2.VideoCapture(0)
 width,height = c.get(3),c.get(4)
 
 config = ConfigParser.RawConfigParser()
-config.read("..\\vision.conf")
+config.read("../vision.conf")
 
 hue_lower = int(config.get('hotornot','hue_lower'))
 hue_upper = int(config.get('hotornot','hue_upper'))
