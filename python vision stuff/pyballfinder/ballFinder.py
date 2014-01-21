@@ -21,6 +21,7 @@ area_difference_to_area_for_circle_detect = int(config.get('pyballfinder','area_
 crio_ip = config.get('network_communication','crio_ip')
 crio_tcp_loc_coords_port = int(config.get('network_communication','crio_tcp_loc_coords_port'))
 send_over_network = (config.get('pyballfinder','send_over_network'))
+draw_windows = config.get('pyballfinder','draw_windows')
 #set up camera
 camera = cv2.VideoCapture(0)
 width,height = camera.get(3),camera.get(4)
@@ -61,18 +62,21 @@ while(1):
             cv2.circle(capture,(cx,cy),5,(0,0,255),-1) 
             type = ""                
             if(area_difference_to_area<area_difference_to_area_for_circle_detect):
-                cv2.putText(capture,"Ball",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))
+                if(draw_windows == "True"):
+                    cv2.putText(capture,"Ball",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))
                 type = "ball"
             else:
-                cv2.putText(capture,"Bumper",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))   
+                if(draw_windows == "True"):
+                    cv2.putText(capture,"Bumper",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))   
                 type = "bumper"      
             message+=(type + ":" + str(cx) + "," + str(cy) +"," + str(int(real_area)) + "\n")
             
     if(message and send_over_network == "True"):
         s.send(message)
 #    show our image during different stages of processing
-    cv2.imshow('capture',capture) 
-    cv2.imshow('erodedbinary',dilatedagain)
+    if(draw_windows == "True"):
+        cv2.imshow('capture',capture) 
+        cv2.imshow('erodedbinary',dilatedagain)
 
     if cv2.waitKey(25) == 27:
         break
