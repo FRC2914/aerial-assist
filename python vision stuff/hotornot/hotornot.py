@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import socket
 import ConfigParser
+import sys
 """
     Convert image to HSV plane using cvtColor() function
     Extract red and blue colors from it using inRange() function
@@ -26,7 +27,7 @@ send_over_network = (config.get('hotornot','send_over_network'))
 crio_ip = config.get('network_communication','crio_ip')
 crio_tcp_loc_coords_port = int(config.get('network_communication','crio_tcp_loc_coords_port'))
 yellow_pixel_thresh = int(config.get('hotornot','yellow_pixel_thresh'))
-draw_windows = config.get('hotornot','draw_windows')
+skip_gui = len(sys.argv) >= 2 and sys.argv[1] == "--nogui"
 
 if(send_over_network == "True"):
     s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -50,14 +51,14 @@ while(1):
     yellows = cv2.countNonZero(dilate)
     if(yellows>yellow_pixel_thresh):
         message="HOT\n"
-        if(draw_windows == "True"):
+        if(not skip_gui):
             cv2.putText(capture,"HOT",(0,450),cv2.FONT_HERSHEY_SIMPLEX,10,(0,0,255))
     else:
         message="NOT\n"
-        if(draw_windows == "True"):
+        if(not skip_gui):
             cv2.putText(capture,"NOT",(0,450),cv2.FONT_HERSHEY_SIMPLEX,10,(0,0,255))
             
-    if(draw_windows == "True"):        
+    if(not skip_gui):        
         cv2.imshow('yellow',dilate)
         cv2.imshow('capture',capture)
 
