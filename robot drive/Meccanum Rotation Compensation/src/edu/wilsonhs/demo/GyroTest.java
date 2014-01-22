@@ -4,6 +4,7 @@ import com.sun.squawk.util.MathUtils;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SimpleRobot;
 
@@ -23,9 +24,11 @@ public class GyroTest extends SimpleRobot {
 //Robot Drive
     private final RobotDrive CHASSIS = new RobotDrive(LEFT_FRONT, LEFT_REAR, RIGHT_FRONT, RIGHT_REAR);
 //Sensors
+    private final Joystick JOYSTICK = new Joystick(1);
     private final Gyro GYRO = new Gyro(2);
 //Misc. Variables
     double lastGyroPosition = 0;
+    private boolean IS_GYRO_UPSIDE_DOWN = true;//R.I.P. Proton M
 
     /**
      * This function is called once each time the robot enters autonomous mode.
@@ -36,7 +39,7 @@ public class GyroTest extends SimpleRobot {
         lastGyroPosition = 0;
         while (DriverStation.getInstance().isAutonomous() && DriverStation.getInstance().isEnabled()) {
             //get positions
-            double currentPosition = GYRO.getAngle() % 360;//0 to 360 . (360 - gyro.getAngle())%360;
+            double currentPosition = (IS_GYRO_UPSIDE_DOWN?(360-GYRO.getAngle()) % 360:GYRO.getAngle()%360);//0 to 360 . (360 - gyro.getAngle())%360;
             double desiredPosition = 0;
             //Gyro Deadband: if gyro hasn't changed enough, ignore it
             if (Math.abs(currentPosition - lastGyroPosition) < 0.0001) {//change back to 0.01
@@ -47,7 +50,7 @@ public class GyroTest extends SimpleRobot {
             double speed = calculateShortestPath(currentPosition, desiredPosition, PROPORTION);
             //move at the given speed
             //CHASSIS.mecanumDrive_Cartesian(0, 0, speed, 0);
-            CHASSIS.arcadeDrive(0, speed);
+             CHASSIS.arcadeDrive(0, speed);
             //System.out.println(speed);
             lastGyroPosition = currentPosition;
         }
@@ -71,9 +74,9 @@ public class GyroTest extends SimpleRobot {
         }
         int bestIndex = findIndexOfMin(absValueDifferences);
         double bestDiff = differences[bestIndex];
-        System.out.println("best difference" + bestDiff);
+//        System.out.println("best difference" + bestDiff);
         double speed = (160.0/(1+1*MathUtils.pow(Math.E,-0.29 * bestDiff))-80.0)/100;//Our best fit curve
-        System.out.println("calculated speed"+speed);
+//        System.out.println("calculated speed"+speed);
         return speed;
     }
 
@@ -124,9 +127,30 @@ public class GyroTest extends SimpleRobot {
     }
 
     public void operatorControl() {
+        GYRO.setSensitivity(0.007);
+        GYRO.reset();
+        lastGyroPosition = 0;
+        while (DriverStation.getInstance().isOperatorControl() && DriverStation.getInstance().isEnabled()) {
+            //get positions
+            double currentPosition = GYRO.getAngle() % 360;//0 to 360 . (360 - gyro.getAngle())%360;
+            double desiredPosition = 0;
+            //Gyro Deadband: if gyro hasn't changed enough, ignore it
+            if (Math.abs(currentPosition - lastGyroPosition) < 0.0001) {//change back to 0.01
+                currentPosition = lastGyroPosition;
+            }
+
+            //find the shortest path and calulate speed
+            double speed = calculateShortestPath(currentPosition, desiredPosition, PROPORTION);
+            CHASSIS.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, true);
+            CHASSIS.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
+            //move at the given speed
+            CHASSIS.mecanumDrive_Cartesian(JOYSTICK.getX(), JOYSTICK.getY(), speed, 0);
+            //CHASSIS.arcadeDrive(0, speed);
+            //System.out.println(speed);
+            lastGyroPosition = currentPosition;
+        }
     }
 
     public void test() {
     }
-	
 }
