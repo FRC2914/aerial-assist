@@ -30,16 +30,13 @@ camera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
 print camera.get(3),camera.get(4)
 
 #set up server
-PANDA_IP = config.get('network_communication','PANDA_IP')
-BUFFER_SIZE = 20
 crio_ip = config.get('network_communication','crio_ip')
 crio_tcp_loc_coords_port = int(config.get('network_communication','crio_tcp_loc_coords_port'))
 send_over_network = (config.get('pyballfinder','send_over_network'))
 #set up socket connection - server
 if(send_over_network == "True"):
     s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    s.listen(1)
-    conn,addr = s.accept()
+    s.connect((crio_ip, crio_tcp_loc_coords_ports))
 
 while(1):
     _,capture = camera.read()
@@ -74,12 +71,12 @@ while(1):
             if(area_difference_to_area<area_difference_to_area_for_circle_detect):
                 if(not skip_gui):
                     cv2.putText(capture,"Ball",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))
-                type = "ball"
+                type = "BALL"
             else:
                 if(not skip_gui):
                     cv2.putText(capture,"Bumper",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))   
-                type = "bumper"      
-            message+=(type + ":" + str(cx) + "," + str(cy) +"," + str(int(real_area)) + "\n")
+                type = "BUMP"      
+            message+=(type + "," + str(cx) + "," + str(cy) +"," + str(int(real_area)) + ";\n")
             
     if(message and send_over_network == "True"):
         s.send(message)
