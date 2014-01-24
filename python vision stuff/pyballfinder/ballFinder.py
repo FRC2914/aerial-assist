@@ -36,7 +36,7 @@ send_over_network = (config.get('pyballfinder','send_over_network'))
 #set up socket connection - server
 if(send_over_network == "True"):
     s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    s.connect((crio_ip, crio_tcp_loc_coords_ports))
+    s.connect((crio_ip, crio_tcp_loc_coords_port))
 
 while(1):
     _,capture = camera.read()
