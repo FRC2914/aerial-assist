@@ -16,7 +16,10 @@ width,height = c.get(3),c.get(4)
 
 config = ConfigParser.RawConfigParser()
 config.read("../vision.conf")
-
+height = int(config.get('camera','height'))
+width = int(config.get('camera','width'))
+c.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
+c.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
 hue_lower = int(config.get('hotornot','hue_lower'))
 hue_upper = int(config.get('hotornot','hue_upper'))
 saturation_lower = int(config.get('hotornot','saturation_lower'))
