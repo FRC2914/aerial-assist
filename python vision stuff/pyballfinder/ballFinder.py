@@ -38,6 +38,29 @@ if(send_over_network == "True"):
     s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     s.connect((crio_ip, crio_tcp_loc_coords_port))
 
+"""
+    does two checks to figure out if it's a circle.  First: calculate the area and perimeter of the contour using opencv.  Then, calculate the area using the perimeter.  Are those two values similar?
+    Then:find the minimum and maximum radius of the contour.  Are they similar?
+"""
+def is_contour_a_ball(contour,real_area,perimeter,(cx,cy)):
+    calculated_area=math.pow((perimeter/(2*math.pi)),2)*math.pi
+    area_difference=abs(real_area-calculated_area)
+    area_difference_to_area=int(area_difference/real_area*10)
+    min_radius = 99999999
+    max_radius = 0
+    for coord in contour:
+        dist_from_center =  math.sqrt((coord[0][0]-cx)**2+(coord[0][1]-cy)**2)
+        if dist_from_center < min_radius:
+            min_radius=dist_from_center
+        if dist_from_center > max_radius:
+            max_radius=dist_from_center
+    if(min_radius<=0):
+        min_radius=1        
+    check_one = area_difference_to_area<area_difference_to_area_for_circle_detect
+    check_two = max_radius/min_radius < 3    
+    return check_one and check_two # True if circle
+    
+
 while(1):
     _,capture = camera.read()
     capture = cv2.flip(capture,1)   
@@ -59,23 +82,18 @@ while(1):
         real_area = cv2.contourArea(contour)
         if real_area > min_contour_area:
             perimeter = cv2.arcLength(contour, True)
-            calculated_area=math.pow((perimeter/(2*math.pi)),2)*math.pi
-            area_difference=abs(real_area-calculated_area)
-            area_difference_to_area=int(area_difference/real_area*10)
-  
-#    find centroids (fancy word for center of mass) of best_contour and draw a red circle there
             M = cv2.moments(contour)#an image moment is the weighted average of a blob
             cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
-            cv2.circle(capture,(cx,cy),5,(0,0,255),-1) 
-            type = ""                
-            if(area_difference_to_area<area_difference_to_area_for_circle_detect):
+            cv2.circle(capture,(cx,cy),5,(0,0,255),-1)
+            type = ""          
+            if is_contour_a_ball(contour,real_area,perimeter,(cx,cy)):
                 if(not skip_gui):
                     cv2.putText(capture,"Ball",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))
                 type = "BALL"
             else:
-                if(not skip_gui):
-                    cv2.putText(capture,"Bumper",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))   
-                type = "BUMP"      
+                cv2.putText(capture,"Bumper",(cx,cy),cv2.FONT_HERSHEY_SIMPLEX,3,(0,0,255))   
+                type = "BUMP"
+                     
             message+=(type + "," + str(cx) + "," + str(cy) +"," + str(int(real_area)) + ";\n")
             
     if(message and send_over_network == "True"):
