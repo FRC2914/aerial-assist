@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import javax.microedition.io.Connector;
 import javax.microedition.io.ServerSocketConnection;
 import javax.microedition.io.StreamConnection;
@@ -19,7 +20,7 @@ import javax.microedition.io.StreamConnection;
  *
  * @author Seb
  */
-public class GyroTest extends SimpleRobot {
+public class GyroTest extends /*overly*/ SimpleRobot {
 
 //Parameters
     private final double PROPORTION = 1.0 / 50;
@@ -38,6 +39,27 @@ public class GyroTest extends SimpleRobot {
     private boolean IS_GYRO_UPSIDE_DOWN = true;//R.I.P. Proton M
     double lastrun = System.currentTimeMillis();
     double desiredPosition = 0;
+    int trackingMode;
+    long lastPingTime;
+    boolean waitingForResponce = false;
+    ServerSocketConnection ssc;
+    StreamConnection sc;
+    InputStream is;
+    OutputStream os;
+
+    protected void robotInit() {
+        try {
+            super.robotInit();
+            ssc = (ServerSocketConnection) Connector.open("socket://:2914");
+            System.out.println("Ready for connect");
+            sc = null;
+            is = null;
+            os = null;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+    }
 
     /**
      * This function is called once each time the robot enters autonomous mode.
@@ -47,53 +69,23 @@ public class GyroTest extends SimpleRobot {
         GYRO.setSensitivity(0.007);
         GYRO.reset();
         lastGyroPosition = 0;
-        try {
-            ServerSocketConnection ssc = (ServerSocketConnection) Connector.open("socket://:2914");
-            System.out.println("Ready for connect");
-            StreamConnection sc = null;
-            InputStream is = null;
-            try {
-                sc = ssc.acceptAndOpen();
-                System.out.println("connected");
-                is = sc.openInputStream();
-                int ch;
-                String msg = "";
-                while (DriverStation.getInstance().isAutonomous() && DriverStation.getInstance().isEnabled()) {
-                    long timeoutStart = System.currentTimeMillis();
-                    while ((ch = is.read()) != -1 && System.currentTimeMillis() - timeoutStart < 500) {
-                        //System.out.print((char)ch);
-                        if (((char) ch) == ';') {
-                            System.out.println(msg);
-                            parseObject(msg);
-                            msg = "";
-                        } else if (((char) ch) == '\n') {
-                            break;
-                        }else{
-                            msg += (char) ch;
-                        }
-                        //System.out.write(ch);
-                    }
-                    //get positions
-                    double currentPosition = (360 - GYRO.getAngle()) % 360;//0 to 360 . (360 - gyro.getAngle())%360;
-                    //Gyro Deadband: if gyro hasn't changed enough, ignore it
-                    if (Math.abs(currentPosition - lastGyroPosition) < 0.0001) {//change back to 0.01
-                        currentPosition = lastGyroPosition;
-                    }
-
-                    //find the shortest path and calulate speed
-                    double speed = calculateShortestPath(currentPosition, desiredPosition, PROPORTION);
-                    //move at the given speed
-                    //CHASSIS.mecanumDrive_Cartesian(0, 0, speed, 0);
-                    CHASSIS.arcadeDrive(0, speed);
-                    //System.out.println(speed);
-                    lastGyroPosition = currentPosition;
-                }
-            } finally {
-                ssc.close();
-                sc.close();
-                is.close();
+        openConnection();
+        while (DriverStation.getInstance().isAutonomous() && DriverStation.getInstance().isEnabled()) {
+            recieveData();
+            //get positions
+            double currentPosition = (360 - GYRO.getAngle()) % 360;//0 to 360 . (360 - gyro.getAngle())%360;
+            //Gyro Deadband: if gyro hasn't changed enough, ignore it
+            if (Math.abs(currentPosition - lastGyroPosition) < 0.0001) {//change back to 0.01
+                currentPosition = lastGyroPosition;
             }
-        } catch (IOException e) {
+
+            //find the shortest path and calulate speed
+            double speed = calculateShortestPath(currentPosition, desiredPosition, PROPORTION);
+            //move at the given speed
+            //CHASSIS.mecanumDrive_Cartesian(0, 0, speed, 0);
+            CHASSIS.arcadeDrive(0, speed);
+            //System.out.println(speed);
+            lastGyroPosition = currentPosition;
         }
     }
 
@@ -118,8 +110,8 @@ public class GyroTest extends SimpleRobot {
 //        System.out.println("best difference" + bestDiff);
         double speed = (160.0 / (1 + 1 * MathUtils.pow(Math.E, -0.29 * bestDiff)) - 80.0) / 100;//Our best fit curve
 //        System.out.println("calculated speed"+speed);
-        if(speed > 0.5 || speed < -0.5){
-            speed = 0.5* (speed/Math.abs(speed));
+        if (speed > 0.5 || speed < -0.5) {
+            speed = 0.5 * (speed / Math.abs(speed));
         }
         return speed;
     }
@@ -204,10 +196,85 @@ public class GyroTest extends SimpleRobot {
         int x = Integer.parseInt(params.nextToken());
         int y = Integer.parseInt(params.nextToken());
         double area = Double.parseDouble(params.nextToken());
-        if((x > 165 || x < 155) && type.equalsIgnoreCase("ball")){
-        desiredPosition = lastGyroPosition + (1.0/77777.0)*-MathUtils.pow(x - 160, 3);
-    }else{
+        if ((x > 165 || x < 155) && type.equalsIgnoreCase("ball")) {
+            desiredPosition = lastGyroPosition + (1.0 / 77777.0) * -MathUtils.pow(x - 160, 3);
+        } else {
             desiredPosition = lastGyroPosition;
+        }
+    }
+
+    private boolean openConnection() {
+        try {
+            sc = ssc.acceptAndOpen();
+            waitingForResponce = false;
+            System.out.println("connected");
+            is = sc.openInputStream();
+            os = sc.openOutputStream();
+            keepAlive(true);
+            return true;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public void closeConnection() {
+        try {
+            sc.close();
+            is.close();
+            os.close();
+            sc = null;
+            is = null;
+            os = null;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void recieveData() {
+        try {
+            int ch;
+            String msg = "";
+            long timeoutStart = System.currentTimeMillis();
+            keepAlive();
+            while ((ch = is.read()) != -1 && System.currentTimeMillis() - timeoutStart < 500) {
+                if(ch == 0x0){
+                    waitingForResponce = false;
+                }
+                //System.out.print((char)ch);
+                if (((char) ch) == ';') {
+                    System.out.println(msg);
+                    parseObject(msg);
+                    msg = "";
+                } else if (((char) ch) == '\n') {
+                    break;
+                } else {
+                    msg += (char) ch;
+                }
+                //System.out.write(ch);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    private void keepAlive(){
+        keepAlive(false);
+    }
+
+    private void keepAlive(boolean forceSend) {
+        if (os != null && is != null && sc != null) {
+            if (System.currentTimeMillis() - lastPingTime < 50) {
+                closeConnection();
+                openConnection();
+            }else if(!waitingForResponce || forceSend){
+                try {
+                    os.write(0x0);
+                    lastPingTime = System.currentTimeMillis();
+                    waitingForResponce = true;
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
     }
 }
