@@ -103,7 +103,7 @@ while(1):
         cv2.imshow('capture',capture) 
         cv2.imshow('erodedbinary',dilatedagain)
 
-    if cv2.waitKey(25) == 27:
+    if cv2.waitKey(1) == 27:
         break
     
 s.close()    
