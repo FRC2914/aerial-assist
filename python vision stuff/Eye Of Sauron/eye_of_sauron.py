@@ -2,9 +2,10 @@
     This is the actual vision program to be run on the pandaboard.
     Lots of code is copied directly from the other samples in "python vision stuff".
     
-    There are 3 modes: 
+    There are 4 modes: 
         -Autonomous (based on hotornot)
-        -Target Tracking (based on pyballfinder)
+        -Bumper Tracking (based on pyballfinder)
+        -Ball tracking (based on pyballfinder)
         -Shooting
     
     Here's a flowchart(kinda):
@@ -34,7 +35,6 @@
             -Contour detect
             -???
             -Profit!
-    
 """
 import math
 import ConfigParser
@@ -45,6 +45,9 @@ import select
 
 import cv2
 import numpy as np
+
+import mathstuff
+import vision
 
 def shutdown(logmessage):
     try:
@@ -67,15 +70,6 @@ def getcrio(sock):
         return sock.recv(64)
     else:
         return ""
-    #if a ping packet, respond to it and reset ping time counter
-    #if new mode, set 'mode' flag
-
-def autonomous():
-    return("HOT")
-def tracking():
-    return("BALL,180,120,1000;\n")
-def shooting():
-    return("SHOOT")
         
 #get configuration stuff for camera
 config = ConfigParser.RawConfigParser()
@@ -84,7 +78,7 @@ exposure = int(config.get('camera','exposure'))
 height = int(config.get('camera','height'))
 width = int(config.get('camera','width'))
     
-#set up cameras. If no frontcamera, don't bother connecting to cRIO, just exit
+#set up cameras. If that fails, don't bother connecting to cRIO, just exit
 frontcamera = cv2.VideoCapture(0)
 frontcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 5 gives dark image. 100 gives bright image.
 frontcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
@@ -124,26 +118,29 @@ while(1):
         print "500ms elapsed since last heard from cRio.  Attempting reconnection..."
         sock.close()
         #@TODO reconnect
-    if mode=='Autonomous':
-        packetforcrio = autonomous()
-    elif mode=='Tracking':
-        packetforcrio = tracking()
-    elif mode=='Shooting':
-        packetforcrio = shooting() 
-    else:
-        #We're fucked.
-        shutdown("Received Bad \"Mode\" from cRio.")
+    if mode=='autonomous':
+        packetforcrio = vision.autonomous(frontcamera)
+    elif mode=='trackbump':
+        packetforcrio = vision.trackbump()
+    elif mode=='trackball':
+        packetforcrio = vision.trackball()
+    elif mode=='shooting':
+        packetforcrio = vision.shooting() 
+    else:#especially mode=="none"
+        pass 
     
     if packetforcrio != "" and send_over_network=="True":
         log("Sending to cRio: " + packetforcrio)
-        sock.send(packetforcrio)
+        sock.send(packetforcrio + "\n")
     
     fromcrio = getcrio()
     if(fromcrio!=""):
-        if(fromcrio[:4]=="MODE"):
-            mode = fromcrio[6:]
-        elif(fromcrio[:4]=="PING"):
+        if(fromcrio[:1]=="m"):
+            mode = fromcrio[1:]
+        elif(fromcrio[:1]=="p"):
             sock.send(fromcrio)
             timeoflastping=time.time()
+    if cv2.waitKey(1) == 27:
+        break
         
 shutdown("Reached EOF.  That wasn't supposed to happen.")
