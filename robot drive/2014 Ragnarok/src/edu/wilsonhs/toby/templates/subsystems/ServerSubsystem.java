@@ -6,6 +6,8 @@ package edu.wilsonhs.toby.templates.subsystems;
 
 import edu.wilsonhs.toby.network.Packet;
 import edu.wilsonhs.toby.network.NetworkListener;
+import edu.wilsonhs.toby.templates.commands.NetworkCommands;
+import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +30,9 @@ public class ServerSubsystem extends Subsystem {
     OutputStream os;
 
     protected void initDefaultCommand() {
+        Command netCommand = new NetworkCommands();
+        netCommand.setRunWhenDisabled(true);
+        setDefaultCommand(netCommand);
     }
 
     public void recieveData() {

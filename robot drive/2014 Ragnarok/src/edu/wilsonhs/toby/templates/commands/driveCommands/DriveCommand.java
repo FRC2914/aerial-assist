@@ -7,12 +7,11 @@ package edu.wilsonhs.toby.templates.commands.driveCommands;
 import edu.wilsonhs.toby.templates.commands.CommandBase;
 /**
  *
- * @author Dev
+ * @author Toby
  */
 public class DriveCommand extends CommandBase{
     
     public DriveCommand(){
-        
         requires(driveSubsystem);
     }
 
