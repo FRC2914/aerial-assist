@@ -6,8 +6,6 @@ package edu.wilsonhs.toby.templates.commands;
 
 import edu.wilsonhs.toby.network.Packet;
 import edu.wilsonhs.toby.network.PacketListener;
-import edu.wpi.first.wpilibj.command.Command;
-
 /**
  *
  * @author Dev
@@ -16,6 +14,8 @@ class ShootOnHotCommand extends CommandBase implements PacketListener{
     private boolean hasShot;
 
     public ShootOnHotCommand() {
+        requires(serverSubsystem);
+        requires(launcherSubsystem);
     }
 
     protected void initialize() {
@@ -37,7 +37,7 @@ class ShootOnHotCommand extends CommandBase implements PacketListener{
     public void onReceivePacket(Packet packet) {
         if(packet.getType() == Packet.TYPE_HOT){
             if(packet.getBody().equals("hot")){
-                //shoot ball
+                launcherSubsystem.shoot();
             }
         }
     }

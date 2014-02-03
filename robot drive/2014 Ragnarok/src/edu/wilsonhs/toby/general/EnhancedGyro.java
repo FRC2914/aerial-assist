@@ -4,6 +4,7 @@
  */
 package edu.wilsonhs.toby.general;
 
+import edu.wpi.first.wpilibj.Accelerometer;
 import edu.wpi.first.wpilibj.Gyro;
 import java.util.Vector;
 
@@ -12,47 +13,23 @@ import java.util.Vector;
  * @author Dev
  */
 public class EnhancedGyro extends Gyro{
-    private boolean recording;
-    private long lastRecordTime;
-    private Vector pastData = new Vector(15, 0);
-    private long timeOfLastReset;
-    private double driftPerSecond = 0d;
-    public EnhancedGyro(int channel){
+    private double lastAngle = 0;
+    private long timeOfLastMeasurement;
+    private static final double alpha = 0.98;
+    private Accelerometer acc;
+    public EnhancedGyro(int channel, Accelerometer acc){
         super(channel);
-        lastRecordTime = System.currentTimeMillis();
-        timeOfLastReset = System.currentTimeMillis();
+        timeOfLastMeasurement = System.currentTimeMillis();
+        this.acc = acc;
     }
 
     public double getAngle() {
-        if(recording && System.currentTimeMillis() - lastRecordTime >= 1000){
-            double angle = super.getAngle();
-            System.out.println(angle);
-            pastData.insertElementAt(new Double(angle), 0);
-            lastRecordTime = System.currentTimeMillis();
-        }
-            return super.getAngle()/* + (driftPerSecond * ((System.currentTimeMillis() - timeOfLastReset)/1000d))*/;
-    }
-    
-    public void startRecording(){
-        recording = true;
-        reset();
-    }
-    
-    public void stopRecording(){
-        recording = false;
-        double firstRecord, lastRecord, totalDrift;
-        firstRecord = ((Double)pastData.elementAt(14)).doubleValue();
-        lastRecord = ((Double)pastData.elementAt(0)).doubleValue();
-        totalDrift = lastRecord - firstRecord;
-        System.out.println(firstRecord + " - " + lastRecord + "\ndrifted " + totalDrift + " degrees in 15 seconds");
-        if(totalDrift < 15d){
-            driftPerSecond = totalDrift/15d;
-        }
-    }
-
-    public void reset() {
-        super.reset();
-        timeOfLastReset = System.currentTimeMillis();
+        double dt = System.currentTimeMillis() - timeOfLastMeasurement/1000;
+        timeOfLastMeasurement = System.currentTimeMillis();
+        double angle  = super.getAngle();
+        angle = (1-alpha)*(lastAngle + angle * dt) + (alpha)*(acc.getAcceleration());
+        lastAngle = angle;
+        return angle;
     }
     
     

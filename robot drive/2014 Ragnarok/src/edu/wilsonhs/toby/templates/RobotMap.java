@@ -1,10 +1,10 @@
 package edu.wilsonhs.toby.templates;
 
 import edu.wilsonhs.toby.general.EnhancedGyro;
+import edu.wpi.first.wpilibj.Accelerometer;
 import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.Talon;
 
 /**
  * The RobotMap is a mapping from the ports sensors and actuators are wired into
@@ -21,7 +21,9 @@ public class RobotMap {
 //Robot Drive
     public static final RobotDrive CHASSIS = new RobotDrive(LEFT_FRONT, LEFT_REAR, RIGHT_FRONT, RIGHT_REAR);
 //Sensors
-    public static final EnhancedGyro GYRO = new EnhancedGyro(2);
+//    public static final Accelerometer ACC = new Accelerometer(1);
+//    public static final EnhancedGyro GYRO = new EnhancedGyro(2, ACC);
+    public static final Gyro GYRO = new Gyro(2);
 //Constants
     public static final boolean IS_GYRO_UPSIDE_DOWN = true;
     // For example to map the left and right motors, you could define the

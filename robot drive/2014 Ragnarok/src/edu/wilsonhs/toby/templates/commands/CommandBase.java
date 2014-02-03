@@ -1,11 +1,11 @@
 package edu.wilsonhs.toby.templates.commands;
 
-import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wilsonhs.toby.templates.OI;
 import edu.wilsonhs.toby.templates.subsystems.ActiveRotationCorrectionSubsystem;
+import edu.wilsonhs.toby.templates.subsystems.LauncherSubsystem;
 import edu.wilsonhs.toby.templates.subsystems.RobotDriveSubsystem;
 import edu.wilsonhs.toby.templates.subsystems.ServerSubsystem;
+import edu.wpi.first.wpilibj.command.Command;
 
 /**
  * The base for all commands. All atomic commands should subclass CommandBase.
@@ -20,7 +20,8 @@ public abstract class CommandBase extends Command {
     public static ServerSubsystem serverSubsystem = new ServerSubsystem();
     public static RobotDriveSubsystem driveSubsystem = new RobotDriveSubsystem();
     public static ActiveRotationCorrectionSubsystem activeRotationCorrectionSubsystem = new ActiveRotationCorrectionSubsystem();
-
+    public static LauncherSubsystem launcherSubsystem = new LauncherSubsystem();
+    
     public static void init() {
         // This MUST be here. If the OI creates Commands (which it very likely
         // will), constructing it during the construction of CommandBase (from

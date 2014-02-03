@@ -7,16 +7,13 @@
 package edu.wilsonhs.toby.templates;
 
 import edu.wilsonhs.toby.templates.commands.AutonomousCommand;
+import edu.wilsonhs.toby.templates.commands.CommandBase;
+import edu.wilsonhs.toby.templates.commands.PregameCommand;
+import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wilsonhs.toby.templates.commands.CommandBase;
-import edu.wilsonhs.toby.templates.commands.PregameCommand;
-import edu.wilsonhs.toby.templates.subsystems.RobotDriveSubsystem;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.command.Subsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -51,8 +48,8 @@ public class RobotTemplate extends IterativeRobot {
     }
 
     public void disabledInit() {
-        //disabledCommand.setRunWhenDisabled(true);
-        //disabledCommand.start();
+        disabledCommand.setRunWhenDisabled(true);
+        disabledCommand.start();
     }
 
     public void disabledPeriodic() {
@@ -72,6 +69,8 @@ public class RobotTemplate extends IterativeRobot {
     }
 
     public void teleopInit() {
+        disabledCommand.cancel();
+        disabledCommand.start();
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to 
         // continue until interrupted by another command, remove
@@ -83,6 +82,7 @@ public class RobotTemplate extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
+        Scheduler.getInstance().run();
     }
 
     /**

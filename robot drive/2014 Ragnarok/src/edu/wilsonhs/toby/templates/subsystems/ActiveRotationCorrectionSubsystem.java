@@ -6,9 +6,7 @@ package edu.wilsonhs.toby.templates.subsystems;
 
 import edu.wilsonhs.toby.templates.RobotMap;
 import edu.wilsonhs.toby.templates.commands.driveCommands.ActiveRotationCorrectionCommand;
-import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
-import edu.wpi.first.wpilibj.command.Subsystem;
 
 /**
  *
@@ -24,12 +22,10 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     }
 
     protected double returnPIDInput() {
-        System.out.println("giving info");
         return RobotMap.GYRO.getAngle() - desiredHeading;
     }
 
     protected void usePIDOutput(double d) {
-        System.out.println("sending info");
         ((ActiveRotationCorrectionCommand)getDefaultCommand()).correctAngle(d);
     }
 

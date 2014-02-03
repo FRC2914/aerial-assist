@@ -15,7 +15,6 @@ public class ActiveRotationCorrectionCommand extends CommandBase{
    public ActiveRotationCorrectionCommand(){
         requires(driveSubsystem);
         requires(activeRotationCorrectionSubsystem);
-       System.out.println("ready");
    }
     protected void initialize() {
     }
@@ -24,7 +23,6 @@ public class ActiveRotationCorrectionCommand extends CommandBase{
     }
     
     public void correctAngle(double amount){
-        System.out.println(amount);
         driveSubsystem.drive(0, 0, -amount);
         driveSubsystem.drive();
     }

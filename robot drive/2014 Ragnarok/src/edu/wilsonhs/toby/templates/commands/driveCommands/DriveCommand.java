@@ -5,8 +5,6 @@
 package edu.wilsonhs.toby.templates.commands.driveCommands;
 
 import edu.wilsonhs.toby.templates.commands.CommandBase;
-import edu.wpi.first.wpilibj.DriverStation;
-
 /**
  *
  * @author Dev

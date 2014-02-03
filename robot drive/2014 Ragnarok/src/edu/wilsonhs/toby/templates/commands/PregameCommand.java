@@ -5,6 +5,7 @@
 package edu.wilsonhs.toby.templates.commands;
 
 import edu.wilsonhs.toby.templates.RobotMap;
+import edu.wilsonhs.toby.templates.commands.driveCommands.DriveCommand;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
@@ -15,7 +16,6 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 public class PregameCommand extends CommandGroup {
 
     public PregameCommand() {
-        RobotMap.GYRO.startRecording();
     }
 
     public synchronized void start() {
@@ -23,21 +23,20 @@ public class PregameCommand extends CommandGroup {
     }
 
     protected void initialize() {
+        RobotMap.GYRO.reset();
     }
 
     protected void execute() {
-        RobotMap.GYRO.getAngle();
+        System.out.println(RobotMap.GYRO.getAngle());
     }
 
     protected boolean isFinished() {
-        return !DriverStation.getInstance().isDisabled();
+        return false;
     }
 
     protected void end() {
-        RobotMap.GYRO.stopRecording();
     }
 
     protected void interrupted() {
-        RobotMap.GYRO.stopRecording();
     }
 }

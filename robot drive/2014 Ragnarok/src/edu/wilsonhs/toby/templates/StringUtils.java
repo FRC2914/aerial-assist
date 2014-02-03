@@ -5,8 +5,6 @@
 package edu.wilsonhs.toby.templates;
 
 import com.sun.squawk.util.StringTokenizer;
-import java.util.Vector;
-
 /**
  *
  * @author Dev
