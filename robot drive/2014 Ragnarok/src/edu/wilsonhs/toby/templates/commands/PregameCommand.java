@@ -11,11 +11,12 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 
 /**
  *
- * @author Dev
+ * @author Toby
  */
 public class PregameCommand extends CommandGroup {
 
     public PregameCommand() {
+        addParallel(new NetworkCommands());
     }
 
     public synchronized void start() {

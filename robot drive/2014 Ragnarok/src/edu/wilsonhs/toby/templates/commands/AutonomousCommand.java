@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 public class AutonomousCommand extends CommandGroup{
 
     public AutonomousCommand() {
-        //addParallel(new ShootOnHotCommand());
+        addParallel(new ShootOnHotCommand());
         addSequential(new DriveCommand());
     }
 }

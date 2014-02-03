@@ -6,7 +6,7 @@ package edu.wilsonhs.toby.templates.commands;
 
 /**
  *
- * @author Dev
+ * @author Toby
  */
 public class ServerCommand extends CommandBase{
 

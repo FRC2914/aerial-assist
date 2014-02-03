@@ -8,6 +8,7 @@ package edu.wilsonhs.toby.templates;
 
 import edu.wilsonhs.toby.templates.commands.AutonomousCommand;
 import edu.wilsonhs.toby.templates.commands.CommandBase;
+import edu.wilsonhs.toby.templates.commands.NetworkCommands;
 import edu.wilsonhs.toby.templates.commands.PregameCommand;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.RobotDrive;
@@ -26,6 +27,7 @@ public class RobotTemplate extends IterativeRobot {
 
     Command autonomousCommand;
     Command disabledCommand;
+    Command networkCommands;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -37,6 +39,7 @@ public class RobotTemplate extends IterativeRobot {
         // instantiate the command used for the autonomous period
         autonomousCommand = new AutonomousCommand();
         disabledCommand = new PregameCommand();
+        networkCommands = new NetworkCommands();
         RobotMap.GYRO.setSensitivity(0.007);
 
 

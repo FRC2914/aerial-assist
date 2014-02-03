@@ -4,13 +4,13 @@
  */
 package edu.wilsonhs.toby.templates.commands;
 
+import edu.wilsonhs.toby.network.NetworkListener;
 import edu.wilsonhs.toby.network.Packet;
-import edu.wilsonhs.toby.network.PacketListener;
 /**
  *
- * @author Dev
+ * @author Toby
  */
-class ShootOnHotCommand extends CommandBase implements PacketListener{
+class ShootOnHotCommand extends CommandBase implements NetworkListener{
     private boolean hasShot;
 
     public ShootOnHotCommand() {
@@ -40,6 +40,9 @@ class ShootOnHotCommand extends CommandBase implements PacketListener{
                 launcherSubsystem.shoot();
             }
         }
+    }
+
+    public void onConnectToClient() {
     }
     
 }

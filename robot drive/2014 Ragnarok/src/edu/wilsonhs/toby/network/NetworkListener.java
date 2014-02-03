@@ -6,9 +6,9 @@ package edu.wilsonhs.toby.network;
 
 /**
  *
- * @author Dev
+ * @author Toby
  */
-public interface PacketListener {
+public interface NetworkListener {
     public void onReceivePacket(Packet packet);
-    
+    public void onConnectToClient();
 }

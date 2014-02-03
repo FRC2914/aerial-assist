@@ -6,11 +6,9 @@ package edu.wilsonhs.toby.general;
 
 import edu.wpi.first.wpilibj.Accelerometer;
 import edu.wpi.first.wpilibj.Gyro;
-import java.util.Vector;
-
 /**
  *
- * @author Dev
+ * @author Toby
  */
 public class EnhancedGyro extends Gyro{
     private double lastAngle = 0;

@@ -5,7 +5,7 @@
 package edu.wilsonhs.toby.templates.subsystems;
 
 import edu.wilsonhs.toby.network.Packet;
-import edu.wilsonhs.toby.network.PacketListener;
+import edu.wilsonhs.toby.network.NetworkListener;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,8 +89,12 @@ public class ServerSubsystem extends Subsystem {
             ex.printStackTrace();
         }
     }
+    
+    public boolean isConnectedToClient(){
+        return sc != null;
+    }
 
-    public void addListener(PacketListener packetListener) {
+    public void addListener(NetworkListener packetListener) {
         listeners.addElement(packetListener);
     }
 
@@ -111,7 +115,7 @@ public class ServerSubsystem extends Subsystem {
     private void parseDataAndSendToListeners(String msg) {
         Packet recieved = new Packet(msg);
         for (int i = 0; i < listeners.size(); i++) {
-            PacketListener listener = (PacketListener) listeners.elementAt(i);
+            NetworkListener listener = (NetworkListener) listeners.elementAt(i);
             listener.onReceivePacket(recieved);
         }
     }
