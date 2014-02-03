@@ -1,12 +1,7 @@
 
 package edu.wilsonhs.toby.templates;
 
-import edu.wilsonhs.toby.templates.commands.CommandDeadMan;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.buttons.Button;
-import edu.wpi.first.wpilibj.buttons.DigitalIOButton;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
-
 /**
  * This class is the glue that binds the controls on the physical operator
  * interface to the commands and command groups that allow control of the robot.
@@ -17,8 +12,6 @@ public class OI {
     public static final Joystick LEFT_STICK = new Joystick(2);
     
     public OI() {
-        Button deadManSwitch = new JoystickButton(LEFT_STICK, 1);
-        deadManSwitch.whileHeld(new CommandDeadMan());
     }
     
     

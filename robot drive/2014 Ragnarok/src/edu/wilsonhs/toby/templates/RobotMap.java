@@ -1,5 +1,8 @@
 package edu.wilsonhs.toby.templates;
 
+import edu.wilsonhs.toby.general.EnhancedGyro;
+import edu.wpi.first.wpilibj.Gyro;
+import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Talon;
 
@@ -10,12 +13,17 @@ import edu.wpi.first.wpilibj.Talon;
  * floating around.
  */
 public class RobotMap {
-    private static Talon RIGHT_FRONT = new Talon(1);
-    private static Talon RIGHT_BACK = new Talon(2);
-    private static Talon LEFT_FRONT = new Talon(3);
-    private static Talon LEFT_BACK = new Talon(4);
-    public static RobotDrive CHASSIS = new RobotDrive(LEFT_FRONT, LEFT_BACK, RIGHT_FRONT, RIGHT_BACK);
-    
+//Motors
+    private static final Jaguar RIGHT_FRONT = new Jaguar(2);
+    private static final Jaguar RIGHT_REAR = new Jaguar(3);
+    private static final Jaguar LEFT_FRONT = new Jaguar(4);
+    private static final Jaguar LEFT_REAR = new Jaguar(5);
+//Robot Drive
+    public static final RobotDrive CHASSIS = new RobotDrive(LEFT_FRONT, LEFT_REAR, RIGHT_FRONT, RIGHT_REAR);
+//Sensors
+    public static final EnhancedGyro GYRO = new EnhancedGyro(2);
+//Constants
+    public static final boolean IS_GYRO_UPSIDE_DOWN = true;
     // For example to map the left and right motors, you could define the
     // following variables to use with your drivetrain subsystem.
     // public static final int leftMotor = 1;
