@@ -5,6 +5,8 @@ import ConfigParser
 import cv2
 
 class vision:
+    config = ConfigParser.RawConfigParser()
+    config.read("settings.conf")
     #get configs for autonomous
     hue_lower = int(config.get('autonomous','hue_lower'))
     hue_upper = int(config.get('autonomous','hue_upper'))
@@ -13,7 +15,7 @@ class vision:
     value_lower = int(config.get('autonomous','value_lower'))
     value_upper = int(config.get('autonomous','value_upper'))
     yellow_pixel_thresh = int(config.get('autonomous','yellow_pixel_thresh'))
-    delay_every_cycle=int(config.get('autonomous','delay_every_cycle'))
+    delay_every_cycle=float(config.get('autonomous','delay_every_cycle'))
     """
         counts the yellow pixels in the camera frame.  If above yellow_pixels_thresh, return hhot, else hnot.
     """
