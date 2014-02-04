@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.command.PIDSubsystem;
 
 /**
  *
- * @author Dev
+ * @author Toby
  */
 public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
 
@@ -22,11 +22,19 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     }
 
     protected double returnPIDInput() {
-        return RobotMap.GYRO.getAngle() - desiredHeading;
+        return RobotMap.GYRO.getAngle()%360 - desiredHeading;
     }
 
     protected void usePIDOutput(double d) {
         ((ActiveRotationCorrectionCommand)getDefaultCommand()).correctAngle(d);
+    }
+    
+    public void setRelativeHeading(double heading){
+        desiredHeading = RobotMap.GYRO.getAngle()%360 + heading;
+    }
+    
+    public void setAbsoluteHeading(double heading){
+        desiredHeading = heading;
     }
 
     protected void initDefaultCommand() {

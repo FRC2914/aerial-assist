@@ -14,7 +14,6 @@ public class ModePacket extends Packet{
     public static final String TRACK_BUMP = "trackbump";
     public static final String SHOOT      = "shoot";
     public static final String NONE       = "none";
-    
     public ModePacket(String mode){
         super("m"+mode);
     }
