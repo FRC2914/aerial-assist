@@ -70,6 +70,20 @@ def getcrio(sock):
         return sock.recv(64)
     else:
         return ""
+    
+def establishconnection(ip,port):
+    sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    log("Preparing to connect to server")
+    socket.setdefaulttimeout(5.0)
+    for _ in range(10):
+        try:
+            sock.connect((crio_ip, crio_tcp_loc_coords_port))
+            sock.setblocking(0)
+            return sock
+        except Exception as e:
+            log("Coudn't connect to cRIO. Details:" + str(e))
+            continue 
+    return None
         
 #get configuration stuff for camera
 config = ConfigParser.RawConfigParser()
@@ -88,44 +102,38 @@ rearcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 5 gi
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
 if frontcamera.get(3)==0.0:
-    #insert log error message here
     shutdown("Could not connect to front webcam.  Exiting.")
+    pass
 if rearcamera.get(3)==0.0:
-    #insert log error message here
     shutdown("Could not connect to rear webcam.  Exiting.")
+    pass
         
 #Connect to cRio.
 crio_ip = config.get('network_communication','crio_ip')
 crio_tcp_loc_coords_port = int(config.get('network_communication','crio_tcp_loc_coords_port'))
-send_over_network = (config.get('hotornot','send_over_network'))
+send_over_network = (config.get('network_communication','send_over_network'))
 if(send_over_network=="True"):
-    #set up socket connection - server
-    sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    log("Preparing to connect to server")
-    socket.setdefaulttimeout(300.0)
-    try:
-        sock.connect((crio_ip, crio_tcp_loc_coords_port))
-    except Exception:
-        shutdown("No cRIO.")
+    #set up socket connection
+    sock=establishconnection(crio_ip, crio_tcp_loc_coords_port)
+    if sock == None:
+        shutdown("Could Not Connect to cRIO.")
     log("cRIO connected")
     
-mode = "Autonomous"
+mode = "none"
 timeoflastping=time.time()#if it's been more than 500ms since we heard from the cRio, close socket and restart. time.time() gives us seconds since epoch
-mysocket.setblocking(0)
 while(1):
     packetforcrio=""
-    if time.time-timeoflastping > 0.5:
-        print "500ms elapsed since last heard from cRio.  Attempting reconnection..."
-        sock.close()
+    if time.time()-timeoflastping > 30.5:
+        shutdown("Ping Timeout")
         #@TODO reconnect
-    if mode=='autonomous':
+    if mode == 'autonomous\n':
         packetforcrio = vision.autonomous(frontcamera)
-    elif mode=='trackbump':
-        packetforcrio = vision.trackbump()
-    elif mode=='trackball':
-        packetforcrio = vision.trackball()
-    elif mode=='shooting':
-        packetforcrio = vision.shooting() 
+    elif mode == 'trackbump\n':
+        packetforcrio = vision.trackbump(frontcamera)
+    elif mode == 'trackball\n':
+        packetforcrio = vision.trackball(rearcamera)
+    elif mode == 'shooting\n':
+        packetforcrio = vision.shooting(frontcamera) 
     else:#especially mode=="none"
         pass 
     
@@ -133,10 +141,11 @@ while(1):
         log("Sending to cRio: " + packetforcrio)
         sock.send(packetforcrio + "\n")
     
-    fromcrio = getcrio()
+    fromcrio = getcrio(sock)
     if(fromcrio!=""):
         if(fromcrio[:1]=="m"):
             mode = fromcrio[1:]
+            log("Mode Changed to: " + mode)
         elif(fromcrio[:1]=="p"):
             sock.send(fromcrio)
             timeoflastping=time.time()
