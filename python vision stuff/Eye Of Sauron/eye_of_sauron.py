@@ -49,6 +49,10 @@ import numpy as np
 import mathstuff
 import vision
 
+import glob
+import logging
+import logging.handlers
+
 def shutdown(logmessage):
     try:
         sock.close()    
@@ -61,8 +65,26 @@ def shutdown(logmessage):
     sys.exit(logmessage)
 
 def log(message):
-    print message
-    #@TODO actually log it
+    LOG_FILENAME = 'runtime.log'
+
+    # Set up a specific logger with our desired output level
+    my_logger = logging.getLogger('MyLogger')
+    my_logger.setLevel(logging.DEBUG)
+
+    # Add the log message handler to the logger
+    handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=20, backupCount=5)
+
+    my_logger.addHandler(handler)
+
+    # Log some messages
+    for i in range(20):
+        my_logger.debug(message)
+
+        # See what files are created
+        logfiles = glob.glob('%s*' % LOG_FILENAME)
+
+    for filename in logfiles:
+        print filename
 
 def getcrio(sock):
     ready = select.select([sock], [], [], 0.01)
