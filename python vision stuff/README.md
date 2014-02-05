@@ -2,6 +2,7 @@ The actual script is eye_of_sauron.py.  It's all in there.  The other files are 
 
 The protocol between the cRio and Pandaboard is this:
 cRIO sends:
+
 	-mode packets on mode switch.
 		-mautonomous
 		-mtrackball
@@ -9,6 +10,7 @@ cRIO sends:
 		-mshoot
 		-mnone
 Pandaboard sends:
+
 	-Autonomous
 		-hhot
 		-hnot
@@ -20,6 +22,7 @@ Pandaboard sends:
 		-shit
 		-smiss
 Ping Packets
+
 	-looks like:
 		-p
 	-sent both ways.  Whenever one receives it, it returns the same thing.
