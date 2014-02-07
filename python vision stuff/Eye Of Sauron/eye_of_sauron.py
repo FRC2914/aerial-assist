@@ -65,20 +65,23 @@ def shutdown(logmessage):
     sys.exit(logmessage)
 
 def log(message, lvl):
+    print message
     
-    LOG_FILENAME = 'runtime.log'
+    logCounter = len(glob.glob1(".","*.log"))
+ 
+    logging.basicConfig(filename='runtime' + str(logCounter) + '.log',level=logging.DEBUG)
+    
+    if lvl == 10:
+        logging.debug(message)
+    elif lvl == 20:
+        logging.info(message)
+    elif lvl == 30:
+        logging.warning(message)
+    elif lvl == 40:
+        logging.error(message)
+    elif lvl == 50:
+        logging.critical(message)
 
-    # Set up a specific logger with our desired output level
-    my_logger = logging.getLogger('MyLogger')
-    my_logger.setLevel(lvl)
-
-    # Add the log message handler to the logger
-    handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=20, backupCount=5)
-
-    my_logger.addHandler(handler)
-
-    # Log some messages
-    my_logger.debug(message)
 
 
 def getcrio(sock):
@@ -119,10 +122,10 @@ rearcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 5 gi
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
 if frontcamera.get(3)==0.0:
-    shutdown("Could not connect to front webcam.  Exiting.")
+    #shutdown("Could not connect to front webcam.  Exiting.")
     pass
 if rearcamera.get(3)==0.0:
-    shutdown("Could not connect to rear webcam.  Exiting.")
+    #shutdown("Could not connect to rear webcam.  Exiting.")
     pass
         
 #Connect to cRio.
