@@ -122,7 +122,7 @@ rearcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 5 gi
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
 if frontcamera.get(3)==0.0:
-    #shutdown("Could not connect to front webcam.  Exiting.")
+    shutdown("Could not connect to front webcam.  Exiting.")
     pass
 if rearcamera.get(3)==0.0:
     #shutdown("Could not connect to rear webcam.  Exiting.")
@@ -141,7 +141,21 @@ if(send_over_network=="True"):
     
 mode = "none"
 timeoflastping=time.time()#if it's been more than 500ms since we heard from the cRio, close socket and restart. time.time() gives us seconds since epoch
+
+fps = 0
+secs = int(round(time.time())*1000)
+
 while(1):
+    
+    oldsecs = secs
+    secs = int(round(time.time())*1000)
+    
+    if secs == oldsecs:
+        fps = fps + 1
+    else:
+        log("FPS: " + str(fps), 20)
+        fps = 0;
+
     packetforcrio=""
     if time.time()-timeoflastping > 30.5:
         shutdown("Ping Timeout")
