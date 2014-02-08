@@ -17,6 +17,8 @@ value_lower = int(config.get('autonomous', 'value_lower'))
 value_upper = int(config.get('autonomous', 'value_upper'))
 yellow_pixel_thresh = int(config.get('autonomous', 'yellow_pixel_thresh'))
 auto_delay_every_cycle = float(config.get('autonomous', 'delay_every_cycle'))
+#debug
+draw_gui = config.get('autonomous', 'draw_gui')
 """
     counts the yellow pixels in the camera frame.  If above yellow_pixels_thresh, return hhot, else hnot.
 """
@@ -28,6 +30,9 @@ def autonomous(camera):
 #    turn it into a binary image representing yellows
     inrangepixels = cv2.inRange(hsvcapture, np.array((hue_lower, saturation_lower, value_lower)), np.array((hue_upper, saturation_upper, value_upper)))  # in opencv, HSV is 0-180,0-255,0-255
     yellows = cv2.countNonZero(inrangepixels)
+    if draw_gui=="True":
+        cv2.imshow("capture",capture)
+        cv2.imshow("yellows",yellows)
     if(yellows > yellow_pixel_thresh):
         return("hhot")
     else:
@@ -53,4 +58,3 @@ def trackbump(camera):
 """
 def shooting(camera):
     return("smiss")
-    

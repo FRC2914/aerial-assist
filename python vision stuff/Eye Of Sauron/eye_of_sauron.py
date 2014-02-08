@@ -73,7 +73,7 @@ def establishconnection(ip,port):
     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     logger.log("Preparing to connect to server", 20)
     socket.setdefaulttimeout(5.0)
-    for _ in range(10):
+    for _ in range(25):
         try:
             sock.connect((crio_ip, crio_tcp_loc_coords_port))
             sock.setblocking(0)
@@ -86,6 +86,7 @@ def establishconnection(ip,port):
 #get configuration stuff for camera
 config = ConfigParser.RawConfigParser()
 config.read("settings.conf")
+log_fps=config.get('debug','log_fps')
 exposure = int(config.get('camera','exposure'))
 height = int(config.get('camera','height'))
 width = int(config.get('camera','width'))
@@ -132,7 +133,8 @@ while(1):
     if secs == oldsecs:
         fps = fps + 1
     else:
-        logger.log("FPS: " + str(fps), 20)
+        if log_fps=="True":
+            logger.log("FPS: " + str(fps), 20)
         fps = 0;
 
     packetforcrio=""
