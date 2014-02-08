@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 public class RobotDriveSubsystem extends Subsystem{
     private double x = 0, y = 0, rotation = 0;
     protected void initDefaultCommand() {
-        setDefaultCommand(new DriveCommand());
     }
     
     public void drive(double x, double y, double rotation){

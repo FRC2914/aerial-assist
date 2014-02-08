@@ -5,10 +5,14 @@
 package edu.wilsonhs.toby.templates.commands.driveCommands;
 
 import edu.wilsonhs.toby.templates.commands.CommandBase;
+import edu.wilsonhs.toby.templates.OI;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.Joystick.AxisType;
+import edu.wpi.first.wpilibj.Joystick.ButtonType;
 
 /**
  *
- * @author Dev
+ * @author Toby
  */
 public class ActiveRotationCorrectionCommand extends CommandBase{
 

@@ -10,6 +10,7 @@ import edu.wilsonhs.toby.templates.commands.AutonomousCommand;
 import edu.wilsonhs.toby.templates.commands.CommandBase;
 import edu.wilsonhs.toby.templates.commands.NetworkCommands;
 import edu.wilsonhs.toby.templates.commands.PregameCommand;
+import edu.wilsonhs.toby.templates.commands.TeleopCommand;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.command.Command;
@@ -28,6 +29,7 @@ public class RobotTemplate extends IterativeRobot {
     Command autonomousCommand;
     Command disabledCommand;
     Command networkCommands;
+    Command teleopCommand;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -38,8 +40,9 @@ public class RobotTemplate extends IterativeRobot {
         RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
         // instantiate the command used for the autonomous period
         autonomousCommand = new AutonomousCommand();
-        disabledCommand = new PregameCommand();
-        networkCommands = new NetworkCommands();
+        disabledCommand   = new PregameCommand();
+        networkCommands   = new NetworkCommands();
+        teleopCommand     = new TeleopCommand();
         RobotMap.GYRO.setSensitivity(0.007);
 
 
@@ -72,13 +75,13 @@ public class RobotTemplate extends IterativeRobot {
     }
 
     public void teleopInit() {
-        disabledCommand.cancel();
-        disabledCommand.start();
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to 
         // continue until interrupted by another command, remove
         // this line or comment it out.
         autonomousCommand.cancel();
+        System.out.println("TELEOP");
+        teleopCommand.start();
     }
 
     /**

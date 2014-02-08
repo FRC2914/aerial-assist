@@ -19,6 +19,7 @@ public class DriveCommand extends CommandBase{
     }
 
     protected void execute() {
+        System.out.println("PRINTING");
         driveSubsystem.drive();
     }
 

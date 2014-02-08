@@ -30,9 +30,9 @@ public class ServerSubsystem extends Subsystem {
     OutputStream os;
 
     protected void initDefaultCommand() {
-        Command netCommand = new NetworkCommands();
-        netCommand.setRunWhenDisabled(true);
-        setDefaultCommand(netCommand);
+//        Command netCommand = new NetworkCommands();
+//        netCommand.setRunWhenDisabled(true);
+//        setDefaultCommand(netCommand);
     }
 
     public void recieveData() {

@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.command.PIDSubsystem;
 public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
 
     private double desiredHeading = 0;
+    boolean lockedRotation = true;
 
     public ActiveRotationCorrectionSubsystem(){
         super(.05, 0, 0.13);//0.05,0,0.13 is really good!
@@ -26,7 +27,9 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     }
 
     protected void usePIDOutput(double d) {
-        ((ActiveRotationCorrectionCommand)getDefaultCommand()).correctAngle(d);
+        if(lockedRotation){
+            ((ActiveRotationCorrectionCommand)getDefaultCommand()).correctAngle(d);
+        }
     }
     
     public void setRelativeHeading(double heading){
@@ -39,6 +42,18 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
 
     protected void initDefaultCommand() {
         setDefaultCommand(new ActiveRotationCorrectionCommand());
+    }
+    
+    public void unlockRotation(){
+        lockedRotation = false;
+    }
+    
+    public void lockRotation(){
+        lockedRotation = true;
+    }
+    
+    public boolean isRotationLocked(){
+        return lockedRotation;
     }
     
 

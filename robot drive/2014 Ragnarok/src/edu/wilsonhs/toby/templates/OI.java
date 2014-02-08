@@ -8,10 +8,11 @@ import edu.wpi.first.wpilibj.Joystick;
  */
 public class OI {
     
-    public static final Joystick RIGHT_STICK = new Joystick(1);
-    public static final Joystick LEFT_STICK = new Joystick(2);
+    public static Joystick STICK;
     
     public OI() {
+        STICK = new Joystick(1);
+        System.out.println(STICK.getThrottle());
     }
     
     

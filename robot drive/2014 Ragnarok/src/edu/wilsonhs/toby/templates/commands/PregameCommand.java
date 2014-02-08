@@ -5,7 +5,6 @@
 package edu.wilsonhs.toby.templates.commands;
 
 import edu.wilsonhs.toby.templates.RobotMap;
-import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
 /**
@@ -15,9 +14,9 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 public class PregameCommand extends CommandGroup {
 
     public PregameCommand() {
-        Command netCommand = new NetworkCommands();
-        netCommand.setRunWhenDisabled(true);
-        addParallel(netCommand);
+//        Command netCommand = new NetworkCommands();
+//        netCommand.setRunWhenDisabled(true);
+//        addParallel(netCommand);
     }
 
     public synchronized void start() {
@@ -29,7 +28,6 @@ public class PregameCommand extends CommandGroup {
     }
 
     protected void execute() {
-        System.out.println(RobotMap.GYRO.getAngle());
     }
 
     protected boolean isFinished() {

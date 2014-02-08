@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 public class NetworkCommands extends CommandGroup{
     
     public NetworkCommands(){
+        requires(CommandBase.serverSubsystem);
         addParallel(new ServerCommand());
         addParallel(new PingCommand());
     }
