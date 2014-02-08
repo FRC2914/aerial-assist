@@ -158,8 +158,11 @@ while(1):
     
     if packetforcrio != "" and send_over_network=="True":
         logger.log("Sending to cRio: " + packetforcrio, 20)
-        sock.send(packetforcrio + "\n")
-    
+        try:
+            sock.send(packetforcrio + "\n")
+        except Exception as e:
+            logger.log("Could not send packet. Details: " + str(e), 50)
+            
     fromcrio = getcrio(sock)
     if(fromcrio!=""):
         split = string.split(fromcrio,"\n")
