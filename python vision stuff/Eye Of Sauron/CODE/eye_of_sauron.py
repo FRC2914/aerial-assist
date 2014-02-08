@@ -112,6 +112,9 @@ crio_ip = config.get('network_communication','crio_ip')
 crio_tcp_loc_coords_port = int(config.get('network_communication','crio_tcp_loc_coords_port'))
 send_over_network = config.get('network_communication','send_over_network')
 crio_timeout_time = config.get('network_communication','crio_timeout_time')
+crio_on_localhost = config.get('debug','crio_on_localhost')
+if crio_on_localhost == "True":
+    crio_ip="127.0.0.1"
 if(send_over_network=="True"):
     #set up socket connection
     sock=establishconnection(crio_ip, crio_tcp_loc_coords_port)

@@ -18,7 +18,7 @@ value_upper = int(config.get('autonomous', 'value_upper'))
 yellow_pixel_thresh = int(config.get('autonomous', 'yellow_pixel_thresh'))
 auto_delay_every_cycle = float(config.get('autonomous', 'delay_every_cycle'))
 #debug
-draw_gui = config.get('autonomous', 'draw_gui')
+draw_gui = config.get('debug', 'draw_gui')
 """
     counts the yellow pixels in the camera frame.  If above yellow_pixels_thresh, return hhot, else hnot.
 """
@@ -32,7 +32,7 @@ def autonomous(camera):
     yellows = cv2.countNonZero(inrangepixels)
     if draw_gui=="True":
         cv2.imshow("capture",capture)
-        cv2.imshow("yellows",yellows)
+        cv2.imshow("yellows",inrangepixels)
     if(yellows > yellow_pixel_thresh):
         return("hhot")
     else:
