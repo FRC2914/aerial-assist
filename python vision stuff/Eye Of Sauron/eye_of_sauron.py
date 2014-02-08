@@ -81,6 +81,8 @@ def log(message, lvl):
         logging.error(message)
     elif lvl == 50:
         logging.critical(message)
+    else:
+        logging.error("Bad error level: " + message)
 
 
 
@@ -125,13 +127,14 @@ if frontcamera.get(3)==0.0:
     shutdown("Could not connect to front webcam.  Exiting.")
     pass
 if rearcamera.get(3)==0.0:
-    #shutdown("Could not connect to rear webcam.  Exiting.")
+    shutdown("Could not connect to rear webcam.  Exiting.")
     pass
         
 #Connect to cRio.
 crio_ip = config.get('network_communication','crio_ip')
 crio_tcp_loc_coords_port = int(config.get('network_communication','crio_tcp_loc_coords_port'))
-send_over_network = (config.get('network_communication','send_over_network'))
+send_over_network = config.get('network_communication','send_over_network')
+crio_timeout_time = config.get('network_communication','crio_timeout_time')
 if(send_over_network=="True"):
     #set up socket connection
     sock=establishconnection(crio_ip, crio_tcp_loc_coords_port)
@@ -157,9 +160,9 @@ while(1):
         fps = 0;
 
     packetforcrio=""
-    if time.time()-timeoflastping > 30.5:
+    if time.time()-timeoflastping > crio_timeout_time:
         shutdown("Ping Timeout")
-        #@TODO reconnect
+        #reconnect will happen because the linux machine will restart this script
     if mode == 'autonomous\n':
         packetforcrio = vision.autonomous(frontcamera)
     elif mode == 'trackbump\n':
@@ -181,7 +184,7 @@ while(1):
             mode = fromcrio[1:]
             log("Mode Changed to: " + mode, 20)
         elif(fromcrio[:1]=="p"):
-            sock.send(fromcrio)
+            sock.send("p\n")
             timeoflastping=time.time()
     if cv2.waitKey(1) == 27:
         break
