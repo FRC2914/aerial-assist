@@ -42,6 +42,7 @@ import socket
 import sys
 import time
 import select
+import string
 
 import cv2
 import numpy as np
@@ -161,12 +162,14 @@ while(1):
     
     fromcrio = getcrio(sock)
     if(fromcrio!=""):
-        if(fromcrio[:1]=="m"):
-            mode = fromcrio[1:]
-            logger.log("Mode Changed to: " + mode, 20)
-        elif(fromcrio[:1]=="p"):
-            sock.send("p\n")
-            timeoflastping=time.time()
+        split = string.split(fromcrio,"\n")
+        for s in split:
+            if(s[:1]=="m"):
+                mode = fromcrio[1:]
+                logger.log("Mode Changed to: " + mode, 20)
+            elif(s[:1]=="p"):
+                sock.send("p\n")
+                timeoflastping=time.time()
     if cv2.waitKey(1) == 27:
         break
         
