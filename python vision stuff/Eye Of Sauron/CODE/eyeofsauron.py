@@ -127,7 +127,7 @@ mode = "none"
 timeoflastping=time.time()#if it's been more than 500ms since we heard from the cRio, close socket and restart.
 
 fps = 0
-secs = int(round(time.time())*1000)
+secs = int(round(time.clock())*1000)
 
 while(1):
     

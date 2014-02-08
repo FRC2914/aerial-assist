@@ -82,7 +82,7 @@ while(1):
         real_area = cv2.contourArea(contour)
         if real_area > min_contour_area:
             perimeter = cv2.arcLength(contour, True)
-            M = cv2.moments(contour)#an image moment is the weighted average of a blob
+            M = cv2.moments(contour) #an image moment is the weighted average of a blob
             cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
             cv2.circle(capture,(cx,cy),5,(0,0,255),-1)
             type = ""          
