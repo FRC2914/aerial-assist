@@ -87,7 +87,7 @@ def log(message, lvl):
 
 
 def getcrio(sock):
-    ready = select.select([sock], [], [], 0.01)
+    ready = select.select([sock], [], [], 0)
     if ready[0]:
         return sock.recv(64)
     else:
