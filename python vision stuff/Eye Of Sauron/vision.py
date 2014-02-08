@@ -1,5 +1,5 @@
 import math
-import numpy
+import numpy as np
 import ConfigParser
 import time
 
@@ -16,18 +16,18 @@ saturation_upper = int(config.get('autonomous', 'saturation_upper'))
 value_lower = int(config.get('autonomous', 'value_lower'))
 value_upper = int(config.get('autonomous', 'value_upper'))
 yellow_pixel_thresh = int(config.get('autonomous', 'yellow_pixel_thresh'))
-delay_every_cycle = float(config.get('autonomous', 'delay_every_cycle'))
+auto_delay_every_cycle = float(config.get('autonomous', 'delay_every_cycle'))
 """
     counts the yellow pixels in the camera frame.  If above yellow_pixels_thresh, return hhot, else hnot.
 """
 def autonomous(camera):
-    time.sleep(delay_every_cycle)
-    capture = camera.read()
+    time.sleep(auto_delay_every_cycle)
+    _,capture = camera.read()
 #    Convert image to HSV plane using cvtColor() function
     hsvcapture = cv2.cvtColor(capture, cv2.COLOR_BGR2HSV)    
 #    turn it into a binary image representing yellows
     inrangepixels = cv2.inRange(hsvcapture, np.array((hue_lower, saturation_lower, value_lower)), np.array((hue_upper, saturation_upper, value_upper)))  # in opencv, HSV is 0-180,0-255,0-255
-    yellows = cv2.countNonZero(dilate)
+    yellows = cv2.countNonZero(inrangepixels)
     if(yellows > yellow_pixel_thresh):
         return("hhot")
     else:
