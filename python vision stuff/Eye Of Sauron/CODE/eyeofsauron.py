@@ -150,7 +150,7 @@ while(1):
     elif mode == 'trackbump\n':
         packetforcrio = vision.trackbump(frontcamera)
     elif mode == 'trackball\n':
-        packetforcrio = vision.trackball(rearcamera)
+        packetforcrio = vision.trackball(frontcamera)
     elif mode == 'shooting\n':
         packetforcrio = vision.shooting(frontcamera) 
     else:#especially mode=="none"
