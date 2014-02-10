@@ -129,51 +129,54 @@ timeoflastping=time.time()#if it's been more than 500ms since we heard from the 
 fps = 0
 secs = int(round(time.clock())*1000)
 
-while(1):
+try:
+    while(1):
+        
+        oldsecs = secs
+        secs = int(round(time.time())*1000)
+        
+        if secs == oldsecs:
+            fps = fps + 1
+        else:
+            if log_fps=="True":
+                logger.log("FPS: " + str(fps), 20)
+            fps = 0;
     
-    oldsecs = secs
-    secs = int(round(time.time())*1000)
-    
-    if secs == oldsecs:
-        fps = fps + 1
-    else:
-        if log_fps=="True":
-            logger.log("FPS: " + str(fps), 20)
-        fps = 0;
-
-    packetforcrio=""
-    if time.time()-timeoflastping > crio_timeout_time:
-        shutdown("Ping Timeout")
-        #reconnect will happen because the linux machine will restart this script
-    if mode == 'autonomous\n':
-        packetforcrio = vision.autonomous(frontcamera)
-    elif mode == 'trackbump\n':
-        packetforcrio = vision.trackbump(frontcamera)
-    elif mode == 'trackball\n':
-        packetforcrio = vision.trackball(frontcamera)
-    elif mode == 'shooting\n':
-        packetforcrio = vision.shooting(frontcamera) 
-    else:#especially mode=="none"
-        pass 
-    
-    if packetforcrio != "" and send_over_network=="True":
-        logger.log("Sending to cRio: " + packetforcrio, 20)
-        try:
-            sock.send(packetforcrio + "\n")
-        except Exception as e:
-            logger.log("Could not send packet. Details: " + str(e), 50)
-            
-    fromcrio = getcrio(sock)
-    if(fromcrio!=""):
-        split = string.split(fromcrio,"\n")
-        for s in split:
-            if(s[:1]=="m"):
-                mode = fromcrio[1:]
-                logger.log("Mode Changed to: " + mode, 20)
-            elif(s[:1]=="p"):
-                sock.send("p\n")
-                timeoflastping=time.time()
-    if cv2.waitKey(1) == 27:
-        break
+        packetforcrio=""
+        if time.time()-timeoflastping > crio_timeout_time:
+            shutdown("Ping Timeout")
+            #reconnect will happen because the linux machine will restart this script
+        if mode == 'autonomous\n':
+            packetforcrio = vision.autonomous(frontcamera)
+        elif mode == 'trackbump\n':
+            packetforcrio = vision.trackbump(frontcamera)
+        elif mode == 'trackball\n':
+            packetforcrio = vision.trackball(frontcamera)
+        elif mode == 'shooting\n':
+            packetforcrio = vision.shooting(frontcamera) 
+        else:#especially mode=="none"
+            pass 
+        
+        if packetforcrio != "" and send_over_network=="True":
+            logger.log("Sending to cRio: " + packetforcrio, 20)
+            try:
+                sock.send(packetforcrio + "\n")
+            except Exception as e:
+                logger.log("Could not send packet. Details: " + str(e), 50)
+                
+        fromcrio = getcrio(sock)
+        if(fromcrio!=""):
+            split = string.split(fromcrio,"\n")
+            for s in split:
+                if(s[:1]=="m"):
+                    mode = fromcrio[1:]
+                    logger.log("Mode Changed to: " + mode, 20)
+                elif(s[:1]=="p"):
+                    sock.send("p\n")
+                    timeoflastping=time.time()
+        if cv2.waitKey(1) == 27:
+            break
+except KeyboardInterrupt:
+    shutdown("KeyboardInterrupt")
         
 shutdown("Reached EOF.  That wasn't supposed to happen.")
