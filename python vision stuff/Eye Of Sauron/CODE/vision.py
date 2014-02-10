@@ -85,7 +85,7 @@ def trackball(camera):
         return("tball,180,120,0")
     M = cv2.moments(biggest_ball)#an image moment is the weighted average of a blob
     cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
-    return("tball,"+str(frame_width-cx)+","+str(cy)+"," + str(cv2.contourArea(biggest_ball)))
+    return("tball,"+str(frame_width-cx)+","+str(cy)+"," + str(int(cv2.contourArea(biggest_ball))))
    
 """
     Returns info about the biggest bumper
@@ -117,7 +117,7 @@ def trackbump(camera):
         return("tbump,180,120,0")        
     M = cv2.moments(biggest_bumper)
     cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
-    return("tbump,"+str(frame_width-cx)+","+str(cy)+"," + str(cv2.contourArea(biggest_bumper)))    
+    return("tbump,"+str(frame_width-cx)+","+str(cy)+"," + str(int(cv2.contourArea(biggest_bumper))))    
 """
     If you were to shoot now, would it hit ? "shit" : "smiss"
     @TODO make it work
