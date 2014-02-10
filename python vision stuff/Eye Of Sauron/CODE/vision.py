@@ -48,7 +48,8 @@ track_saturation_lower = int(config.get('tracking', 'saturation_lower'))
 track_saturation_upper = int(config.get('tracking', 'saturation_upper'))
 track_value_lower = int(config.get('tracking', 'value_lower'))
 track_value_upper = int(config.get('tracking', 'value_upper'))  
-smallest_ball_area_to_return = int(config.get('tracking', 'smallest_ball_area_to_return'))   
+smallest_ball_area_to_return = int(config.get('tracking', 'smallest_ball_area_to_return'))
+smallest_bumper_area_to_return = int(config.get('tracking', 'smallest_bumper_area_to_return'))
 frame_width = int(config.get('camera', 'width'))     
 """
     Returns info about the biggest ball.
@@ -77,8 +78,8 @@ def trackball(camera):
         return("tball,180,120,0")
     #find biggest ball
     biggest_ball = balls[0]
-    for ball in balls[1:]:
-        if cv2.contourArea(ball)>cv2.contourArea(biggest_ball):
+    for ball in balls[1:]:#we might be able to use opencv's contour hierarchy instead of recalculating
+        if cv2.contourArea(ball)>cv2.contourArea(biggest_ball):#@TODO optimize, b/c we don't need to be recalculating contour_are all the time.
             biggest_ball = ball
     if cv2.contourArea(biggest_ball) < smallest_ball_area_to_return:
         return("tball,180,120,0")
@@ -91,8 +92,32 @@ def trackball(camera):
     @TODO make it work
 """  
 def trackbump(camera):
-    return("tbump,180,120,1000")
-
+    _,capture = camera.read()
+    hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV)
+    inrangepixels = cv2.inRange(hsvcapture,np.array((track_hue_lower,track_saturation_lower,track_value_lower)),np.array((track_hue_upper,track_saturation_upper,track_value_upper)))
+#    Apply erosion and dilation and erosion again to eliminate noise and fill in gaps
+    dilate = cv2.dilate(inrangepixels,None,iterations = 5)
+    erode = cv2.erode(dilate,None,iterations = 10)
+    dilatedagain = cv2.dilate(erode,None,iterations = 5)  
+    if draw_gui=="True":
+        cv2.imshow("capture",capture)
+        cv2.imshow("inrangepixels",dilatedagain)
+    contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    bumpers = []
+    for contour in contours:
+        if not mathstuff.is_contour_a_ball(contour):
+            bumpers.append(contour)   
+    if bumpers == []:#no bumpers detected  
+        return("tbump,180,120,0")
+    biggest_bumper = bumpers[0]
+    for bumper in bumpers[1:]:#to save cpu cyles we could just assume that everything we see is a bumper.  In this mode we are in possession of the ball anyways.
+        if cv2.contourArea(bumper)>cv2.contourArea(biggest_bumper):
+            biggest_bumper = bumper
+    if cv2.contourArea(biggest_bumper) < smallest_bumper_area_to_return:
+        return("tbump,180,120,0")        
+    M = cv2.moments(biggest_bumper)
+    cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
+    return("tbump,"+str(frame_width-cx)+","+str(cy)+"," + str(cv2.contourArea(biggest_bumper)))    
 """
     If you were to shoot now, would it hit ? "shit" : "smiss"
     @TODO make it work
