@@ -48,14 +48,15 @@ track_saturation_lower = int(config.get('tracking', 'saturation_lower'))
 track_saturation_upper = int(config.get('tracking', 'saturation_upper'))
 track_value_lower = int(config.get('tracking', 'value_lower'))
 track_value_upper = int(config.get('tracking', 'value_upper'))  
-smallest_ball_area_to_return = int(config.get('tracking', 'smallest_ball_area_to_return'))       
+smallest_ball_area_to_return = int(config.get('tracking', 'smallest_ball_area_to_return'))   
+frame_width = int(config.get('camera', 'width'))     
 """
     Returns info about the biggest ball.
     @TODO make it work
 """    
 def trackball(camera):
     _,capture = camera.read()
-    capture = cv2.flip(capture,1) #or just flip the return width-cx to save cpu cycles.
+    #capture = cv2.flip(capture,1) #Instead, we're just returning width-cx to save cpu cycles.
     hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV) #maybe sort by rg(b) or (r)gb instead of resource intensive hsv
     #    find pixels that are the right color
     inrangepixels = cv2.inRange(hsvcapture,np.array((track_hue_lower,track_saturation_lower,track_value_lower)),np.array((track_hue_upper,track_saturation_upper,track_value_upper)))#in opencv, HSV is 0-180,0-255,0-255
@@ -83,7 +84,7 @@ def trackball(camera):
         return("tball,180,120,0")
     M = cv2.moments(biggest_ball)#an image moment is the weighted average of a blob
     cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
-    return("tball,"+str(cx)+","+str(cy)+"," + str(cv2.contourArea(biggest_ball)))
+    return("tball,"+str(frame_width-cx)+","+str(cy)+"," + str(cv2.contourArea(biggest_ball)))
    
 """
     Returns info about the biggest bumper
