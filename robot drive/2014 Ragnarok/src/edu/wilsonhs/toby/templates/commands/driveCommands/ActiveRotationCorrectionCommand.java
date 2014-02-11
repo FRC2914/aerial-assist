@@ -4,21 +4,19 @@
  */
 package edu.wilsonhs.toby.templates.commands.driveCommands;
 
-import edu.wilsonhs.toby.templates.commands.CommandBase;
-import edu.wilsonhs.toby.templates.OI;
-import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.Joystick.AxisType;
-import edu.wpi.first.wpilibj.Joystick.ButtonType;
+import edu.wilsonhs.toby.general.DriveController;
 
 /**
  *
  * @author Toby
  */
-public class ActiveRotationCorrectionCommand extends CommandBase{
+public class ActiveRotationCorrectionCommand extends DriveController{
 
-   public ActiveRotationCorrectionCommand(){
+    private double rotation = 0.0;
+    public ActiveRotationCorrectionCommand(){
         requires(driveSubsystem);
         requires(activeRotationCorrectionSubsystem);
+        driveSubsystem.addController(this);
    }
     protected void initialize() {
     }
@@ -27,8 +25,7 @@ public class ActiveRotationCorrectionCommand extends CommandBase{
     }
     
     public void correctAngle(double amount){
-        driveSubsystem.drive(0, 0, -amount);
-        driveSubsystem.drive();
+        rotation = -amount;
     }
 
     protected boolean isFinished() {
@@ -40,5 +37,15 @@ public class ActiveRotationCorrectionCommand extends CommandBase{
 
     protected void interrupted() {
     }
+
+    public double getRotation() {
+        return rotation;
+    }
+
+    public int getRotationPriority() {
+        return 1;
+    }
+    
+    
     
 }

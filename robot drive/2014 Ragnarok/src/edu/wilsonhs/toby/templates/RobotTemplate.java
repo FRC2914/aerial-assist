@@ -11,6 +11,7 @@ import edu.wilsonhs.toby.templates.commands.CommandBase;
 import edu.wilsonhs.toby.templates.commands.NetworkCommands;
 import edu.wilsonhs.toby.templates.commands.PregameCommand;
 import edu.wilsonhs.toby.templates.commands.TeleopCommand;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.command.Command;
@@ -41,9 +42,15 @@ public class RobotTemplate extends IterativeRobot {
         // instantiate the command used for the autonomous period
         autonomousCommand = new AutonomousCommand();
         disabledCommand   = new PregameCommand();
-        networkCommands   = new NetworkCommands();
+//        networkCommands   = new NetworkCommands();
         teleopCommand     = new TeleopCommand();
         RobotMap.GYRO.setSensitivity(0.007);
+        disabledCommand.setRunWhenDisabled(true);
+        new Thread(){
+            public void run(){
+                CommandBase.driveSubsystem.startDriveLoop();
+            }
+        }.start();
 
 
 
@@ -54,17 +61,18 @@ public class RobotTemplate extends IterativeRobot {
     }
 
     public void disabledInit() {
-        disabledCommand.setRunWhenDisabled(true);
         disabledCommand.start();
     }
 
     public void disabledPeriodic() {
-        Scheduler.getInstance().run();
+            Scheduler.getInstance().run();
     }
 
     public void autonomousInit() {
         // schedule the autonomous command (example)
-        autonomousCommand.start();
+//        autonomousCommand.start();
+        disabledCommand.cancel();
+        disabledCommand.start();
     }
 
     /**
@@ -79,7 +87,6 @@ public class RobotTemplate extends IterativeRobot {
         // teleop starts running. If you want the autonomous to 
         // continue until interrupted by another command, remove
         // this line or comment it out.
-        autonomousCommand.cancel();
         System.out.println("TELEOP");
         teleopCommand.start();
     }

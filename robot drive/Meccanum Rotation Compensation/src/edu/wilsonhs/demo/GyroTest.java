@@ -169,7 +169,7 @@ public class GyroTest extends /*overly*/ SimpleRobot {
         lastGyroPosition = 0;
         while (DriverStation.getInstance().isOperatorControl() && DriverStation.getInstance().isEnabled()) {
             //get positions
-            double currentPosition = GYRO.getAngle() % 360;//0 to 360 . (360 - gyro.getAngle())%360;
+            double currentPosition = (360-GYRO.getAngle()) % 360;//0 to 360 . (360 - gyro.getAngle())%360;
             double desiredPosition = 0;
             //Gyro Deadband: if gyro hasn't changed enough, ignore it
             if (Math.abs(currentPosition - lastGyroPosition) < 0.0001) {//change back to 0.01

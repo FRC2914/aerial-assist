@@ -9,6 +9,8 @@ import edu.wilsonhs.toby.network.NetworkListener;
 import edu.wilsonhs.toby.templates.commands.NetworkCommands;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.networktables2.util.List;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,11 +25,11 @@ import javax.microedition.io.StreamConnection;
  */
 public class ServerSubsystem extends Subsystem {
 
-    private Vector listeners = new Vector();
+    private List listeners = new List();
     ServerSocketConnection ssc;
     StreamConnection sc;
     InputStream is;
-    OutputStream os;
+    DataOutputStream os;
 
     protected void initDefaultCommand() {
 //        Command netCommand = new NetworkCommands();
@@ -35,8 +37,8 @@ public class ServerSubsystem extends Subsystem {
 //        setDefaultCommand(netCommand);
     }
 
-    public void recieveData() {
-        try {
+    public void recieveData() throws IOException {
+        System.out.println("recieving");
             String msg = "";
             char c;
             while ((c = (char) is.read()) != -1) {
@@ -46,18 +48,13 @@ public class ServerSubsystem extends Subsystem {
                 }
                 msg += c;
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        System.out.println("finished recieve");
     }
 
     public void openServer() {
         try {
             ssc = (ServerSocketConnection) Connector.open("socket://:2914");
             System.out.println("Ready for connect");
-            sc = null;
-            is = null;
-            os = null;
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -66,8 +63,15 @@ public class ServerSubsystem extends Subsystem {
     public void instantiateServer() {
         try {
             sc = ssc.acceptAndOpen();
+            System.out.println("Connected to client");
+            System.out.println(listeners.size() + " listeners");
             is = sc.openInputStream();
-            os = sc.openOutputStream();
+            os = sc.openDataOutputStream();
+            for (int i = 0; i < listeners.size(); i++) {
+                NetworkListener listener = (NetworkListener) listeners.get(i);
+                System.out.println("notifying " + listener.getClass().getName() + " of client connect");
+                listener.onConnectToClient();
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -79,6 +83,7 @@ public class ServerSubsystem extends Subsystem {
             is.close();
             os.close();
             instantiateServer();
+            System.out.println("Connection reset");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -90,37 +95,77 @@ public class ServerSubsystem extends Subsystem {
             is.close();
             os.close();
             ssc.close();
+            System.out.println("Server Closed");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
-    
-    public boolean isConnectedToClient(){
+
+    public boolean isConnectedToClient() {
         return sc != null;
     }
 
     public void addListener(NetworkListener packetListener) {
-        listeners.addElement(packetListener);
+        System.out.println("adding " + packetListener.getClass().getName() + " to listeners list");
+        listeners.add(packetListener);
     }
 
     public void sendPacket(Packet toSend) {
+        System.out.print(toSend.getType() + toSend.getUnparsedBody() + '\n');
         sendData(toSend.getType() + toSend.getUnparsedBody() + '\n');
     }
 
     private void sendData(String msg) {
         try {
+//        os.writeChars(msg);
             for (int i = 0; i < msg.length(); i++) {
                 os.write((int) msg.charAt(i));
             }
         } catch (IOException ex) {
             ex.printStackTrace();
+            resetConnetion();
         }
     }
 
+    public void startServerLoop() {
+        new Thread() {
+            public void run() {
+                while (true) {
+                    try{
+                    recieveData();
+                    Thread.sleep(20);
+                    }catch(IOException ex){
+                        ex.printStackTrace();
+                        resetConnetion();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        }.start();
+        new Thread() {
+            public void run() {
+                while (true) {
+                    try {
+                        for (int i = 0; i < listeners.size(); i++) {
+                            NetworkListener listener = (NetworkListener) listeners.get(i);
+                            listener.update();
+                        }
+                        Thread.sleep(20);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+            }
+        }.start();
+    }
+
     private void parseDataAndSendToListeners(String msg) {
+        System.out.println(msg);
         Packet recieved = new Packet(msg);
         for (int i = 0; i < listeners.size(); i++) {
-            NetworkListener listener = (NetworkListener) listeners.elementAt(i);
+            NetworkListener listener = (NetworkListener) listeners.get(i);
             listener.onReceivePacket(recieved);
         }
     }

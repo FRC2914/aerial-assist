@@ -5,6 +5,7 @@
 package edu.wilsonhs.toby.templates.commands;
 
 import edu.wilsonhs.toby.templates.RobotMap;
+import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
 /**
@@ -14,29 +15,21 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 public class PregameCommand extends CommandGroup {
 
     public PregameCommand() {
-//        Command netCommand = new NetworkCommands();
-//        netCommand.setRunWhenDisabled(true);
-//        addParallel(netCommand);
-    }
-
-    public synchronized void start() {
-        super.start();
+        requires(CommandBase.serverSubsystem);
+        Command server = new ServerCommand();
+        Command ping = new PingCommand();
+        server.setRunWhenDisabled(true);
+        ping.setRunWhenDisabled(true);
+        addParallel(server);
+        addParallel(ping);
     }
 
     protected void initialize() {
+        CommandBase.serverSubsystem.openServer();
+        CommandBase.serverSubsystem.instantiateServer();
+        super.initialize();
         RobotMap.GYRO.reset();
-    }
-
-    protected void execute() {
-    }
-
-    protected boolean isFinished() {
-        return false;
-    }
-
-    protected void end() {
-    }
-
-    protected void interrupted() {
+        CommandBase.serverSubsystem.startServerLoop();
+        System.out.println("continue");
     }
 }

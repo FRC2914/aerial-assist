@@ -44,5 +44,9 @@ class ShootOnHotCommand extends CommandBase implements NetworkListener{
 
     public void onConnectToClient() {
     }
+
+    public void update() {
+       
+    }
     
 }

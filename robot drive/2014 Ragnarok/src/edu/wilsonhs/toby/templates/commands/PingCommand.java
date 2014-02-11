@@ -11,19 +11,21 @@ import edu.wilsonhs.toby.network.NetworkListener;
  *
  * @author Toby
  */
-public class PingCommand extends CommandBase implements NetworkListener{
-    
-    private long timePingSent;
+public class PingCommand extends CommandBase implements NetworkListener {
 
-    protected void initialize() {
+    private long timePingSent;
+    private static final long timeout = 500;
+
+    public PingCommand() {
         requires(serverSubsystem);
         serverSubsystem.addListener(this);
     }
 
+    protected void initialize() {
+    }
+
     protected void execute() {
-        if(serverSubsystem.isConnectedToClient() && System.currentTimeMillis() - timePingSent > 500){
-            serverSubsystem.resetConnetion();
-        }
+
     }
 
     protected boolean isFinished() {
@@ -37,15 +39,24 @@ public class PingCommand extends CommandBase implements NetworkListener{
     }
 
     public void onReceivePacket(Packet packet) {
-        if(packet.getType() == Packet.TYPE_PING){
+        if (packet.getType() == Packet.TYPE_PING) {
             serverSubsystem.sendPacket(packet);
             timePingSent = System.currentTimeMillis();
         }
     }
 
     public void onConnectToClient() {
+        System.out.println("sending p");
         serverSubsystem.sendPacket(new Packet("p"));
         timePingSent = System.currentTimeMillis();
+        serverSubsystem.sendPacket(new Packet("mtrackball"));
     }
-    
+
+    public void update() {
+        if (serverSubsystem.isConnectedToClient() && System.currentTimeMillis() - timePingSent > timeout) {
+            System.out.println("resetting");
+            serverSubsystem.resetConnetion();
+        }
+    }
+
 }

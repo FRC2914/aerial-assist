@@ -11,4 +11,5 @@ package edu.wilsonhs.toby.network;
 public interface NetworkListener {
     public void onReceivePacket(Packet packet);
     public void onConnectToClient();
+    public void update();
 }

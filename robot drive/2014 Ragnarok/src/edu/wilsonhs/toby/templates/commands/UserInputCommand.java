@@ -4,6 +4,7 @@
  */
 package edu.wilsonhs.toby.templates.commands;
 
+import edu.wilsonhs.toby.general.DriveController;
 import edu.wilsonhs.toby.templates.OI;
 import edu.wilsonhs.toby.templates.commands.CommandBase;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -12,31 +13,30 @@ import edu.wpi.first.wpilibj.DriverStation;
  *
  * @author toby
  */
-public class UserInputCommand extends CommandBase{
+public class UserInputCommand extends DriveController{
     
     public UserInputCommand(){
         requires(activeRotationCorrectionSubsystem);
         requires(driveSubsystem);
+        driveSubsystem.addController(this);
     }
 
     protected void initialize() {
     }
 
-    protected void execute() {
-        double x = OI.STICK.getRawAxis(5);
-        double y = OI.STICK.getRawAxis(6);
-        if(y == 1.0){
+    public void update() {
+        double SwitchX = OI.STICK.getRawAxis(5);
+        double switchY = OI.STICK.getRawAxis(6);
+        if(switchY == 1.0){
             activeRotationCorrectionSubsystem.unlockRotation();
             System.out.println("UNLOCKED");
-        }else if(y == -1.0){
+        }else if(switchY == -1.0){
             activeRotationCorrectionSubsystem.lockRotation();
             System.out.println("LOCKED");
-        } 
-        
-        if(!activeRotationCorrectionSubsystem.isRotationLocked()){
-            driveSubsystem.drive(0, 0, OI.STICK.getTwist());
         }
     }
+    
+    
 
     protected boolean isFinished() {
         return !DriverStation.getInstance().isOperatorControl();
@@ -47,5 +47,32 @@ public class UserInputCommand extends CommandBase{
 
     protected void interrupted() {
     }
+
+    public double getX() {
+        return OI.STICK.getX(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public double getY() {
+        return OI.STICK.getY(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public double getRotation() {
+        if(!activeRotationCorrectionSubsystem.isRotationLocked()){
+            return OI.STICK.getTwist();
+        }else{
+            return 0;
+        }
+    }
+
+    public int getRotationPriority() {
+            return 2;
+    }
+
+    protected void execute() {
+    }
+    
+    
+    
+    
     
 }

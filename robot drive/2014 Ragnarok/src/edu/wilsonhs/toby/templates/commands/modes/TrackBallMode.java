@@ -37,12 +37,18 @@ public class TrackBallMode extends Mode{
     public void onReceivePacket(Packet packet) {
         if(packet.getType() == Packet.TYPE_TRACKING){
             if(packet.getBody()[0].equals("ball")){
-                pointTowards(Integer.parseInt(packet.getBody()[1]));
+                if(Integer.parseInt(packet.getBody()[3]) > 0){
+                    pointTowards(Integer.parseInt(packet.getBody()[1]));
+                }
             }
         }
     }
 
     public void onConnectToClient() {
+    }
+
+    public void update() {
+        
     }
     
 }

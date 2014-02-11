@@ -18,7 +18,7 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     boolean lockedRotation = true;
 
     public ActiveRotationCorrectionSubsystem(){
-        super(.05, 0, 0.13);//0.05,0,0.13 is really good!
+        super(.02, 0, 0.13);//0.05,0,0.13 is really good!
         enable();
     }
 
@@ -29,6 +29,8 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     protected void usePIDOutput(double d) {
         if(lockedRotation){
             ((ActiveRotationCorrectionCommand)getDefaultCommand()).correctAngle(d);
+        }else{
+            ((ActiveRotationCorrectionCommand)getDefaultCommand()).correctAngle(0);
         }
     }
     

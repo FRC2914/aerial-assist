@@ -10,14 +10,15 @@ package edu.wilsonhs.toby.templates.commands;
  */
 public class ServerCommand extends CommandBase{
 
+    public ServerCommand() {
+            requires(serverSubsystem);
+    }
+
+    
     protected void initialize() {
-        requires(serverSubsystem);
-        serverSubsystem.instantiateServer();
-        serverSubsystem.openServer();
     }
 
     protected void execute() {
-        serverSubsystem.recieveData();
     }
 
     protected boolean isFinished() {
