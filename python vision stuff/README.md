@@ -1,4 +1,4 @@
-The actual script is eye_of_sauron.py.  It's all in there.  The other files are some sample scripts that I used to test some of this stuff out.
+The actual script is eyeofsauron.py.  It's all in there.  The other files are some sample scripts that I used to test some of this stuff out.
 
 The protocol between the cRio and Pandaboard is this:
 cRIO sends:
@@ -7,7 +7,7 @@ cRIO sends:
 		-mautonomous
 		-mtrackball
 		-mtrackbump
-		-mshoot
+		-mshooting
 		-mnone
 Pandaboard sends:
 

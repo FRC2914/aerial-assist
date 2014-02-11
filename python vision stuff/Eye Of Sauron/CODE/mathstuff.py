@@ -4,6 +4,12 @@ import ConfigParser
 import cv2
 import numpy
 
+
+config = ConfigParser.RawConfigParser()
+config.read("settings.conf")
+area_difference_to_area_for_circle_detect = int(config.get('tracking', 'area_difference_to_area_for_circle_detect'))
+min_max_radius_for_circle_detect = float(config.get('tracking', 'min_max_radius_for_circle_detect'))
+
 """
     Performs two checks.
     Check one:
@@ -13,7 +19,7 @@ import numpy
 """
 def is_contour_a_ball(contour):
     real_area = cv2.contourArea(contour)
-    perimeter = cv2.arcLength(contour)
+    perimeter = cv2.arcLength(contour,True)
     M = cv2.moments(contour)#an image moment is the weighted average of a blob
     cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
     calculated_area=math.pow((perimeter/(2*math.pi)),2)*math.pi
@@ -30,5 +36,5 @@ def is_contour_a_ball(contour):
     if(min_radius<=0):
         min_radius=1        
     check_one = area_difference_to_area<area_difference_to_area_for_circle_detect
-    check_two = max_radius/min_radius < 2  
+    check_two = max_radius/min_radius < min_max_radius_for_circle_detect 
     return check_one and check_two # True if circle

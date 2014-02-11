@@ -11,7 +11,7 @@ import sys
     Draw the contours using drawContours() function.
 """
 
-c = cv2.VideoCapture(0)
+c = cv2.VideoCapture(1)
 width,height = c.get(3),c.get(4)
 
 config = ConfigParser.RawConfigParser()
@@ -60,7 +60,7 @@ while(1):
         message="NOT\n"
         if(not skip_gui):
             cv2.putText(capture,"NOT",(0,450),cv2.FONT_HERSHEY_SIMPLEX,10,(0,0,255))
-            
+        
     if(not skip_gui):        
         cv2.imshow('yellow',dilate)
         cv2.imshow('capture',capture)
