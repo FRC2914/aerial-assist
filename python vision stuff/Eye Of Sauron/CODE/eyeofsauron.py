@@ -83,7 +83,7 @@ def establishconnection(ip,port):
             logger.log("Coudn't connect to cRIO. Details:" + str(e), 50)
             continue 
     return None
-        
+
 #get configuration stuff for camera
 config = ConfigParser.RawConfigParser()
 config.read("settings.conf")
@@ -158,11 +158,11 @@ try:
             pass 
         
         if packetforcrio != "" and send_over_network=="True":
-            logger.log("Sending to cRio: " + packetforcrio, 20)
+            logger.log("Sending to cRio: " + packetforcrio, 10)
             try:
                 sock.send(packetforcrio + "\n")
             except Exception as e:
-                logger.log("Could not send packet. Details: " + str(e), 50)
+                logger.log("Could not send packet. Details: " + str(e), 40)
                 
         fromcrio = getcrio(sock)
         if(fromcrio!=""):
