@@ -170,6 +170,7 @@ try:
             for s in split:
                 if(s[:1]=="m"):
                     mode = fromcrio[1:]
+                    sock.send(fromcrio)
                     logger.log("Mode Changed to: " + mode, 20)
                 elif(s[:1]=="p"):
                     sock.send("p\n")
