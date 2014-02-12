@@ -118,9 +118,39 @@ def trackbump(camera):
     M = cv2.moments(biggest_bumper)
     cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
     return("tbump,"+str(frame_width-cx)+","+str(cy)+"," + str(int(cv2.contourArea(biggest_bumper))))    
+
+shoot_hue_lower = int(config.get('shooting','hue_lower'))
+shoot_hue_upper = int(config.get('shooting','hue_upper'))
+shoot_saturation_lower = int(config.get('shooting','saturation_lower'))
+shoot_saturation_upper = int(config.get('shooting','saturation_upper'))
+shoot_value_lower = int(config.get('shooting','value_lower'))
+shoot_value_upper = int(config.get('shooting','value_upper'))
+lower_avg = int(config.get('shooting','lower_avg'))
+upper_avg = int(config.get('shooting','upper_avg'))
+min_pixel_weight = int(config.get('shooting','min_pixel_weight'))
+frame_height=int(config.get('camera','height'))
+frame_width = int(config.get('camera','width'))
 """
     If you were to shoot now, would it hit ? "shit" : "smiss"
-    @TODO make it work
 """
 def shooting(camera):
-    return("smiss")
+    _,capture = camera.read()
+    hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV)        
+    inrangepixels = cv2.inRange(hsvcapture,np.array((shoot_hue_lower,shoot_saturation_lower,shoot_value_lower)),np.array((shoot_hue_upper,shoot_saturation_upper,shoot_value_upper)))#in opencv, HSV is 0-180,0-255,0-255
+    try:
+        #This averaging math is explained in ../mshooting/math.png
+        row_averages = np.mean(inrangepixels, axis=1)
+        avg_height=int(np.average(range(0,frame_height), weights=row_averages, axis=0))
+    except ZeroDivisionError:
+        avg_height=0
+        
+    if(np.sum(row_averages, axis=0)<min_pixel_weight):#if we don't count enough pixels, we probably aren't looking at the target.
+        avg_height=0 
+    if(draw_gui=="True"):    
+        cv2.line(capture,(0,avg_height),(frame_width,avg_height),(255,0,0),5)
+        cv2.imshow("capture",capture)
+        cv2.imshow("inrangepixels",inrangepixels)
+    if(avg_height<upper_avg and avg_height>lower_avg):
+        return("shit")
+    else:    
+        return("smiss")
