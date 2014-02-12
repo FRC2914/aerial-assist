@@ -40,20 +40,24 @@ try:
         capture = cv2.flip(capture,1)
         hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV)        
         inrangepixels = cv2.inRange(hsvcapture,np.array((hue_lower,saturation_lower,value_lower)),np.array((hue_upper,saturation_upper,value_upper)))#in opencv, HSV is 0-180,0-255,0-255
-        print inrangepixels
-        avgheight = 0
-        for y in range(0,width):
-            for x in range(0,height):
-                if inrangepixels[x][y]==1:
-                    print x
-                    avgheight+=y     
-        print avgheight  
-        avgheight = avgheight/(width*height)
-        print avgheight
-        cv2.line(inrangepixels,(0,avgheight),(width,avgheight),(255,0,0),20)
+        
+        #gonna try to make this more efficient now.  Lots of math in python is a bad idea.
+        sumofpixels = 0
+        pixels = 0
+        for x in range(0,height):
+            for y in range(0,width):
+                if inrangepixels[x][y]==255:
+                    pixels = pixels+1
+                    sumofpixels+=x
+        avgheight = sumofpixels/(pixels)
+        
+        if(sumofpixels<2000):
+            avgheight=0
+        cv2.line(capture,(0,avgheight),(width,avgheight),(255,0,0),5)
         cv2.imshow("capture",capture)
-        cv2.waitKey(5000)
-        raise Exception("")
+        cv2.imshow("inrangepixels",inrangepixels)
+        cv2.waitKey(1)
+        #raise Exception("")
 except Exception as e: 
     print "done"
     print e
