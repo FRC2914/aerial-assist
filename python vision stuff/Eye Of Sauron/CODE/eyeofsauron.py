@@ -93,7 +93,7 @@ secsElapsed = secs - originalSecs
 #get configuration stuff for camera
 config = ConfigParser.RawConfigParser()
 config.read("settings.conf")
-log_fps=config.get('debug','log_fps')
+log_fps=config.get(secsElapsed,'debug','log_fps')
 exposure = int(config.get('camera','exposure'))
 height = int(config.get('camera','height'))
 width = int(config.get('camera','width'))

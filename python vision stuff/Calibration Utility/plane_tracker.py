@@ -26,8 +26,6 @@ import cv2
 from collections import namedtuple
 import video
 import common
-import ConfigParser
-import sys
 
 
 FLANN_INDEX_KDTREE = 1
@@ -153,16 +151,8 @@ class App:
                 tracked = self.tracker.track(self.frame)
                 for tr in tracked:
                     cv2.polylines(vis, [np.int32(tr.quad)], True, (255, 255, 255), 2)
-                    hsvcapture=cv2.cvtColor(vis,cv2.COLOR_BGR2HSV) 
-                    roi = hsvcapture[np.int32(tr.quad)]
-                    
-                
-                    
-                    
-                    
-                    #_,capture = camera.read()
-                    #print capture[0][0][0]
-        
+                    for (x, y) in np.int32(tr.p1):
+                        cv2.circle(vis, (x, y), 2, (255, 255, 255))
 
             self.rect_sel.draw(vis)
             cv2.imshow('plane', vis)
@@ -176,7 +166,8 @@ class App:
 
 if __name__ == '__main__':
     print __doc__
-   
+
+    import sys
     try: video_src = sys.argv[1]
     except: video_src = 0
     App(video_src).run()
