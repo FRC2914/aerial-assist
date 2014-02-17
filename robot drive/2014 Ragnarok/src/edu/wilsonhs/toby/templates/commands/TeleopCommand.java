@@ -16,7 +16,6 @@ public class TeleopCommand extends CommandGroup{
     
     public TeleopCommand(){
         addParallel(new UserInputCommand());
-        addParallel(new TrackBallMode());
         addParallel(new DriveCommand());
     }
     

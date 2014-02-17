@@ -18,12 +18,23 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     boolean lockedRotation = true;
 
     public ActiveRotationCorrectionSubsystem(){
-        super(.02, 0, 0.13);//0.05,0,0.13 is really good!
+        super(.02, 0, 0.02);//0.05,0,0.13 is really good!
         enable();
+    }
+    
+    public double getAngle(){
+        double gyroAngle = -RobotMap.GYRO.getAngle()%360;
+        if(gyroAngle < -180){
+            gyroAngle = (360 + gyroAngle);
+        }else if(gyroAngle > 180){
+            gyroAngle = -(360 - gyroAngle);
+        }
+        return gyroAngle;
     }
 
     protected double returnPIDInput() {
-        return RobotMap.GYRO.getAngle()%360 - desiredHeading;
+        System.out.println(getAngle());
+        return getAngle();
     }
 
     protected void usePIDOutput(double d) {
@@ -33,11 +44,11 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
             ((ActiveRotationCorrectionCommand)getDefaultCommand()).correctAngle(0);
         }
     }
-    
+
     public void setRelativeHeading(double heading){
         desiredHeading = RobotMap.GYRO.getAngle()%360 + heading;
     }
-    
+
     public void setAbsoluteHeading(double heading){
         desiredHeading = heading;
     }
@@ -45,20 +56,20 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     protected void initDefaultCommand() {
         setDefaultCommand(new ActiveRotationCorrectionCommand());
     }
-    
+
     public void unlockRotation(){
         lockedRotation = false;
     }
-    
+
     public void lockRotation(){
         lockedRotation = true;
     }
-    
+
     public boolean isRotationLocked(){
         return lockedRotation;
     }
-    
 
-    
-    
+
+
+
 }

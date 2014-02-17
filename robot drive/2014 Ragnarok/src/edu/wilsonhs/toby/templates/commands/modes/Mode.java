@@ -5,19 +5,18 @@
 package edu.wilsonhs.toby.templates.commands.modes;
 
 import edu.wilsonhs.toby.network.NetworkListener;
+import edu.wilsonhs.toby.network.Packet;
 import edu.wilsonhs.toby.templates.commands.CommandBase;
 
 /**
  *
  * @author Toby
  */
-public abstract class Mode extends CommandBase implements NetworkListener{
+public abstract class Mode implements NetworkListener{
     protected boolean faceForwards;
     
     public Mode(boolean faceForwards){
-        requires(serverSubsystem);
-        requires(activeRotationCorrectionSubsystem);
-        serverSubsystem.addListener(this);
+        CommandBase.serverSubsystem.addListener(this);
         this.faceForwards = faceForwards;
     }
     
@@ -27,12 +26,18 @@ public abstract class Mode extends CommandBase implements NetworkListener{
     
     protected void pointTowards(int direction){
         double angle = getAngle(direction);
-        activeRotationCorrectionSubsystem.setRelativeHeading(angle);
+        CommandBase.activeRotationCorrectionSubsystem.setRelativeHeading(angle);
     }
     
     public boolean isForwardFacing(){
         return faceForwards;
     }
+    
+    public void stop(){
+        CommandBase.serverSubsystem.removeListener(this);
+    }
+    
+    public abstract Packet getPacket();
     
     
 }

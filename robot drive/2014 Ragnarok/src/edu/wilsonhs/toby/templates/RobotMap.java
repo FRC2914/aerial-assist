@@ -15,15 +15,15 @@ import edu.wpi.first.wpilibj.RobotDrive;
 public class RobotMap {
 //Motors
     private static final Jaguar RIGHT_FRONT = new Jaguar(2);
-    private static final Jaguar RIGHT_REAR = new Jaguar(3);
-    private static final Jaguar LEFT_FRONT = new Jaguar(4);
-    private static final Jaguar LEFT_REAR = new Jaguar(5);
+    private static final Jaguar RIGHT_REAR = new Jaguar(1);
+    private static final Jaguar LEFT_FRONT = new Jaguar(3);
+    private static final Jaguar LEFT_REAR = new Jaguar(4);
 //Robot Drive
     public static final RobotDrive CHASSIS = new RobotDrive(LEFT_FRONT, LEFT_REAR, RIGHT_FRONT, RIGHT_REAR);
 //Sensors
 //    public static final Accelerometer ACC = new Accelerometer(1);
 //    public static final EnhancedGyro GYRO = new EnhancedGyro(2, ACC);
-    public static final Gyro GYRO = new Gyro(2);
+    public static final Gyro GYRO = new Gyro(1);
 //Constants
     public static final boolean IS_GYRO_UPSIDE_DOWN = true;
     // For example to map the left and right motors, you could define the
