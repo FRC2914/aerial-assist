@@ -57,9 +57,9 @@ def shutdown(logmessage):
         cv2.destroyAllWindows()
         frontcamera.release()
         rearcamera.release()
-        logger.log("Shutting down: " + logger.logmessage, 20)
+        logger.log(secsElapsed,"Shutting down: " + logger.logmessage, 20)
     except Exception:
-        logger.log("Had trouble shutting down", 50)
+        logger.log(secsElapsed,"Had trouble shutting down", 50)
     sys.exit(logmessage)
 
 
@@ -72,7 +72,7 @@ def getcrio(sock):
     
 def establishconnection(ip,port):
     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    logger.log("Preparing to connect to server", 20)
+    logger.log(secsElapsed,"Preparing to connect to server", 20)
     socket.setdefaulttimeout(5.0)
     for _ in range(25):
         try:
@@ -80,9 +80,15 @@ def establishconnection(ip,port):
             sock.setblocking(0)
             return sock
         except Exception as e:
-            logger.log("Coudn't connect to cRIO. Details:" + str(e), 50)
+            logger.log(secsElapsed,"Coudn't connect to cRIO. Details:" + str(e), 50)
             continue 
     return None
+
+#set up timer for log function and FPS tracking
+fps = 0
+secs = int(round(time.clock())*1000)
+originalSecs = secs
+secsElapsed = secs - originalSecs
 
 #get configuration stuff for camera
 config = ConfigParser.RawConfigParser()
@@ -126,20 +132,18 @@ if(send_over_network=="True"):
 mode = "none"
 timeoflastping=time.time()#if it's been more than 500ms since we heard from the cRio, close socket and restart.
 
-fps = 0
-secs = int(round(time.clock())*1000)
-
 try:
     while(1):
         
         oldsecs = secs
         secs = int(round(time.time())*1000)
+        secsElapsed = secs - originalSecs
         
         if secs == oldsecs:
             fps = fps + 1
         else:
             if log_fps=="True":
-                logger.log("FPS: " + str(fps), 20)
+                logger.log(secsElapsed,"FPS: " + str(fps), 20)
             fps = 0;
     
         packetforcrio=""
@@ -158,11 +162,11 @@ try:
             pass 
         
         if packetforcrio != "" and send_over_network=="True":
-            logger.log("Sending to cRio: " + packetforcrio, 10)
+            logger.log(secsElapsed,"Sending to cRio: " + packetforcrio, 10)
             try:
                 sock.send(packetforcrio + "\n")
             except Exception as e:
-                logger.log("Could not send packet. Details: " + str(e), 40)
+                logger.log(secsElapsed,"Could not send packet. Details: " + str(e), 40)
                 
         fromcrio = getcrio(sock)
         if(fromcrio!=""):
@@ -171,7 +175,7 @@ try:
                 if(s[:1]=="m"):
                     mode = fromcrio[1:]
                     sock.send(fromcrio)
-                    logger.log("Mode Changed to: " + mode, 20)
+                    logger.log(secsElapsed,"Mode Changed to: " + mode, 20)
                 elif(s[:1]=="p"):
                     sock.send("p\n")
                     timeoflastping=time.time()
