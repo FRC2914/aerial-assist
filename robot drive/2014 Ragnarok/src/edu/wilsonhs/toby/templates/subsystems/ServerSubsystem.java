@@ -109,6 +109,12 @@ public class ServerSubsystem extends Subsystem {
         System.out.println("adding " + packetListener.getClass().getName() + " to listeners list");
         listeners.add(packetListener);
     }
+    
+    public void removeListener(NetworkListener packetListener){
+        if(listeners.contains(packetListener)){
+            listeners.remove(packetListener);
+        }
+    }
 
     public void sendPacket(Packet toSend) {
         System.out.print(toSend.getType() + toSend.getUnparsedBody() + '\n');
@@ -117,7 +123,6 @@ public class ServerSubsystem extends Subsystem {
 
     private void sendData(String msg) {
         try {
-//        os.writeChars(msg);
             for (int i = 0; i < msg.length(); i++) {
                 os.write((int) msg.charAt(i));
             }

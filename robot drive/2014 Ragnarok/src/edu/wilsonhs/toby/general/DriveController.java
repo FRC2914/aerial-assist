@@ -37,6 +37,8 @@ public abstract class DriveController extends CommandBase{
         return 0;
     }
     
+    public abstract boolean isEnabled();
+    
     public void update(){};
 
 }

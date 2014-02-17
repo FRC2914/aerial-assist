@@ -17,34 +17,32 @@ import java.util.Vector;
  *
  * @author Toby
  */
-public class RobotDriveSubsystem extends Subsystem{
+public class RobotDriveSubsystem extends Subsystem {
+
     private List controllers = new List();
-    private DriveController mode;
+
     protected void initDefaultCommand() {
     }
-    
-    public void addController(DriveController controller){
+
+    public void addController(DriveController controller) {
         System.out.println("Attempting to add " + controller.getName() + " to controllers");
-        if(!controllers.contains(controller)){
+        if (!controllers.contains(controller)) {
             controllers.add(controller);
             System.out.println(controller.getName() + " added");
         }
     }
-    
-    public void setFront(boolean shootingDirection){
+
+    public void setFront(boolean shootingDirection) {
         RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, shootingDirection);
         RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kRearLeft, shootingDirection);
         RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kRearRight, !shootingDirection);
         RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kFrontRight, !shootingDirection);
-        
+
     }
-    
-    public void startDriveLoop(){
-        while(true){
+
+    public void startDriveLoop() {
+        while (true) {
             try {
-                if(mode != null){
-                    mode.update();
-                }
                 drive();
                 Thread.sleep(20);
             } catch (InterruptedException ex) {
@@ -52,47 +50,39 @@ public class RobotDriveSubsystem extends Subsystem{
             }
         }
     }
-    public void drive(){
+
+    public void drive() {
         double x = 0;
         double y = 0;
         double rotation = 0;
         int xPriority = 0;
         int yPriority = 0;
         int rotPriority = 0;
-        for(int i = 0; i < controllers.size(); i++){
+        for (int i = 0; i < controllers.size(); i++) {
             DriveController controller = (DriveController) controllers.get(i);
-            controller.update();
-            if(controller.getRotationPriority() >= rotPriority){
-                if(controller.getRotation() > 0.05 || controller.getRotation() < -0.05){
-                    rotPriority = controller.getRotationPriority();
-                    rotation = controller.getRotation();
+            if (controller.isEnabled()) {
+                controller.update();
+                if (controller.getRotationPriority() >= rotPriority) {
+                    if (controller.getRotation() > 0.05 || controller.getRotation() < -0.05) {
+                        rotPriority = controller.getRotationPriority();
+                        rotation = controller.getRotation();
+                    }
                 }
-            }
-            if(controller.getXPriority() >= xPriority){
-                if(controller.getX() > 0.05 || controller.getX() < -0.05){
-                    xPriority = controller.getXPriority();
-                    x = controller.getX();
+                if (controller.getXPriority() >= xPriority) {
+                    if (controller.getX() > 0.05 || controller.getX() < -0.05) {
+                        xPriority = controller.getXPriority();
+                        x = controller.getX();
+                    }
                 }
-            }
-            if(controller.getYPriority() >= yPriority){
-                if(controller.getY() > 0.05 || controller.getY() < -0.05){
-                    yPriority = controller.getYPriority();
-                    y = controller.getY();
+                if (controller.getYPriority() >= yPriority) {
+                    if (controller.getY() > 0.05 || controller.getY() < -0.05) {
+                        yPriority = controller.getYPriority();
+                        y = controller.getY();
+                    }
                 }
             }
         }
-        if(mode != null){
-            rotation = mode.getRotation();
-        }
-            RobotMap.CHASSIS.mecanumDrive_Cartesian(x, y, rotation, RobotMap.GYRO.getAngle());
+        RobotMap.CHASSIS.mecanumDrive_Cartesian(x, y, rotation, 0);
     }
-    
-    public void setMode(DriveController mode){
-        this.mode = mode;
-    }
-    
-    
-    
-    
-    
+
 }

@@ -45,6 +45,10 @@ public class ActiveRotationCorrectionCommand extends DriveController{
     public int getRotationPriority() {
         return 1;
     }
+
+    public boolean isEnabled() {
+        return activeRotationCorrectionSubsystem.isRotationLocked();
+    }
     
     
     
