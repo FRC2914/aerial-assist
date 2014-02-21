@@ -10,7 +10,7 @@ lvl = int(config.get('debug','log_level'))#anything below this level will get ig
 
 def log(secs, message, lvl):
     print message
-    secs=str(secs)
+    secs=str(int(secs))
     logCounter = len(glob.glob1("../LOGS","*.log"))
  
     logging.basicConfig(filename='../LOGS/runtime' + str(logCounter) + '.log',level=lvl)

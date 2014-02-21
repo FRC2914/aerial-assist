@@ -57,9 +57,9 @@ def shutdown(logmessage):
         cv2.destroyAllWindows()
         frontcamera.release()
         rearcamera.release()
-        logger.log(secsElapsed,"Shutting down: " + logger.logmessage, 20)
+        logger.log(time.clock()-start_time,"Shutting down: " + logger.logmessage, 20)
     except Exception:
-        logger.log(secsElapsed,"Had trouble shutting down", 50)
+        logger.log(time.clock()-start_time,"Had trouble shutting down", 50)
     sys.exit(logmessage)
 
 
@@ -72,7 +72,7 @@ def getcrio(sock):
     
 def establishconnection(ip,port):
     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    logger.log(secsElapsed,"Preparing to connect to server", 20)
+    logger.log(time.clock()-start_time,"Preparing to connect to server", 20)
     socket.setdefaulttimeout(5.0)
     for _ in range(25):
         try:
@@ -80,15 +80,11 @@ def establishconnection(ip,port):
             sock.setblocking(0)
             return sock
         except Exception as e:
-            logger.log(secsElapsed,"Coudn't connect to cRIO. Details:" + str(e), 50)
+            logger.log(time.clock()-start_time,"Coudn't connect to cRIO. Details:" + str(e), 50)
             continue 
     return None
 
-#set up timer for log function and FPS tracking
-fps = 0
-secs = int(round(time.clock())*1000)
-originalSecs = secs
-secsElapsed = secs - originalSecs
+start_time=time.clock()
 
 #get configuration stuff for camera
 config = ConfigParser.RawConfigParser()
@@ -127,27 +123,27 @@ if(send_over_network=="True"):
     sock=establishconnection(crio_ip, crio_tcp_loc_coords_port)
     if sock == None:
         shutdown("Could Not Connect to cRIO.")
-    logger.log(0,"cRIO connected", 20)
+    logger.log(time.clock()-start_time,"cRIO connected", 20)
     
 mode = "none"
-timeoflastping=time.time()#if it's been more than 500ms since we heard from the cRio, close socket and restart.
 
+time_of_last_ping=time.time()#if it's been more than 500ms since we heard from the cRio, close socket and restart.
+time_of_last_fps_log=time.clock()+3
+cycles=0
 try:
     while(1):
-        oldsecs = secs
-        secs = int(round(time.time())*1000)
-        secsElapsed = secs - originalSecs
-        if secs == oldsecs:
-            fps = fps + 1
-        else:
+        cycles=cycles+1
+        if time.clock()-time_of_last_fps_log>5:
             if log_fps=="True":
-                logger.log(secsElapsed,"FPS: " + str(fps), 20)
-            fps = 0;
+                fps=cycles/(time.clock()-time_of_last_fps_log)
+                logger.log(time.clock()-start_time,"FPS: " + str(int(fps)), 20)
+            time_of_last_fps_log=time.clock()
+            cycles=0
         
         _,bow_frame = frontcamera.read()
         _,stern_frame = rearcamera.read() 
         packetforcrio=""
-        if time.time()-timeoflastping > crio_timeout_time:
+        if time.time()-time_of_last_ping > crio_timeout_time:
             shutdown("Ping Timeout")
             #reconnect will happen because the linux machine will restart this script
         if mode == 'autonomous\n':
@@ -162,11 +158,11 @@ try:
             pass 
         
         if packetforcrio != "" and send_over_network=="True":
-            logger.log(secsElapsed,"Sending to cRio: " + packetforcrio, 10)
+            logger.log(time.clock()-start_time,"Sending to cRio: " + packetforcrio, 10)
             try:
                 sock.send(packetforcrio + "\n")
             except Exception as e:
-                logger.log(secsElapsed,"Could not send packet. Details: " + str(e), 40)
+                logger.log(time.clock()-start_time,"Could not send packet. Details: " + str(e), 40)
                 
         fromcrio = getcrio(sock)
         if(fromcrio!=""):
@@ -175,10 +171,10 @@ try:
                 if(s[:1]=="m"):
                     mode = fromcrio[1:]
                     sock.send(fromcrio)
-                    logger.log(secsElapsed,"Mode Changed to: " + mode, 20)
+                    logger.log(time.clock()-start_time,"Mode Changed to: " + mode, 20)
                 elif(s[:1]=="p"):
                     sock.send("p\n")
-                    timeoflastping=time.time()
+                    time_of_last_ping=time.time()
         if cv2.waitKey(1) == 27:
             break
 except KeyboardInterrupt:
