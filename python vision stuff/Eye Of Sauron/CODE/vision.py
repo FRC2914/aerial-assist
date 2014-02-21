@@ -19,8 +19,6 @@ auto_value_lower = int(config.get('autonomous', 'value_lower'))
 auto_value_upper = int(config.get('autonomous', 'value_upper'))
 yellow_pixel_thresh = int(config.get('autonomous', 'yellow_pixel_thresh'))
 auto_delay_every_cycle = float(config.get('autonomous', 'delay_every_cycle'))
-#debug
-draw_gui = config.get('debug', 'draw_gui')
 """
     counts the yellow pixels in the camera frame.  If above yellow_pixels_thresh, return hhot, else hnot.
 """
@@ -31,9 +29,6 @@ def autonomous(capture):
 #    turn it into a binary image representing yellows
     inrangepixels = cv2.inRange(hsvcapture, np.array((auto_hue_lower, auto_saturation_lower, auto_value_lower)), np.array((auto_hue_upper, auto_saturation_upper, auto_value_upper)))  # in opencv, HSV is 0-180,0-255,0-255
     yellows = cv2.countNonZero(inrangepixels)
-    if draw_gui=="True":
-        cv2.imshow("capture",capture)
-        cv2.imshow("inrangepixels",inrangepixels)
     if(yellows > yellow_pixel_thresh):
         return("hhot")
     else:
@@ -62,9 +57,6 @@ def trackball(capture):
     dilate = cv2.dilate(inrangepixels,None,iterations = 5)
     erode = cv2.erode(dilate,None,iterations = 10)
     dilatedagain = cv2.dilate(erode,None,iterations = 5)  
-    if draw_gui=="True":
-        cv2.imshow("capture",capture)
-        cv2.imshow("inrangepixels",inrangepixels)
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     #make a list of only balls
     balls = []
@@ -95,9 +87,6 @@ def trackbump(capture):
     dilate = cv2.dilate(inrangepixels,None,iterations = 5)
     erode = cv2.erode(dilate,None,iterations = 10)
     dilatedagain = cv2.dilate(erode,None,iterations = 5)  
-    if draw_gui=="True":
-        cv2.imshow("capture",capture)
-        cv2.imshow("inrangepixels",dilatedagain)
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     bumpers = []
     for contour in contours:
@@ -141,10 +130,6 @@ def shooting(capture):
         
     if(np.sum(row_averages, axis=0)<min_pixel_weight):#if we don't count enough pixels, we probably aren't looking at the target.
         avg_height=0 
-    if(draw_gui=="True"):    
-        cv2.line(capture,(0,avg_height),(frame_width,avg_height),(255,0,0),5)
-        cv2.imshow("capture",capture)
-        cv2.imshow("inrangepixels",inrangepixels)
     if(avg_height<upper_avg and avg_height>lower_avg):
         return("shit")
     else:    

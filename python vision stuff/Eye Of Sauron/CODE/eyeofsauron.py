@@ -93,7 +93,10 @@ log_fps=config.get('debug','log_fps')
 exposure = int(config.get('camera','exposure'))
 height = int(config.get('camera','height'))
 width = int(config.get('camera','width'))
-    
+
+#debug
+draw_gui = config.get('debug', 'draw_gui')
+
 #set up cameras. If that fails, don't bother connecting to cRIO, just exit
 frontcamera = cv2.VideoCapture(0)
 frontcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 5 gives dark image. 100 gives bright image.
@@ -157,13 +160,18 @@ try:
         else:#especially mode=="none"
             pass 
         
+        if(draw_gui=="True"):
+            rendered_frame = np.hstack((bow_frame,stern_frame))
+            cv2.imshow("frame",rendered_frame)
+        
+        #Send Packets
         if packetforcrio != "" and send_over_network=="True":
             logger.log(time.clock()-start_time,"Sending to cRio: " + packetforcrio, 10)
             try:
                 sock.send(packetforcrio + "\n")
             except Exception as e:
                 logger.log(time.clock()-start_time,"Could not send packet. Details: " + str(e), 40)
-                
+        #Receive and deal with packets        
         fromcrio = getcrio(sock)
         if(fromcrio!=""):
             split = string.split(fromcrio,"\n")
@@ -175,6 +183,7 @@ try:
                 elif(s[:1]=="p"):
                     sock.send("p\n")
                     time_of_last_ping=time.time()
+                    
         if cv2.waitKey(1) == 27:
             break
 except KeyboardInterrupt:
