@@ -93,7 +93,7 @@ secsElapsed = secs - originalSecs
 #get configuration stuff for camera
 config = ConfigParser.RawConfigParser()
 config.read("settings.conf")
-log_fps=config.get(secsElapsed,'debug','log_fps')
+log_fps=config.get('debug','log_fps')
 exposure = int(config.get('camera','exposure'))
 height = int(config.get('camera','height'))
 width = int(config.get('camera','width'))
@@ -127,37 +127,37 @@ if(send_over_network=="True"):
     sock=establishconnection(crio_ip, crio_tcp_loc_coords_port)
     if sock == None:
         shutdown("Could Not Connect to cRIO.")
-    logger.log("cRIO connected", 20)
+    logger.log(0,"cRIO connected", 20)
     
 mode = "none"
 timeoflastping=time.time()#if it's been more than 500ms since we heard from the cRio, close socket and restart.
 
 try:
     while(1):
-        
         oldsecs = secs
         secs = int(round(time.time())*1000)
         secsElapsed = secs - originalSecs
-        
         if secs == oldsecs:
             fps = fps + 1
         else:
             if log_fps=="True":
                 logger.log(secsElapsed,"FPS: " + str(fps), 20)
             fps = 0;
-    
+        
+        _,bow_frame = frontcamera.read()
+        _,stern_frame = rearcamera.read() 
         packetforcrio=""
         if time.time()-timeoflastping > crio_timeout_time:
             shutdown("Ping Timeout")
             #reconnect will happen because the linux machine will restart this script
         if mode == 'autonomous\n':
-            packetforcrio = vision.autonomous(frontcamera)
+            packetforcrio = vision.autonomous(bow_frame)
         elif mode == 'trackbump\n':
-            packetforcrio = vision.trackbump(frontcamera)
+            packetforcrio = vision.trackbump(bow_frame)
         elif mode == 'trackball\n':
-            packetforcrio = vision.trackball(frontcamera)
+            packetforcrio = vision.trackball(stern_frame)
         elif mode == 'shooting\n':
-            packetforcrio = vision.shooting(frontcamera) 
+            packetforcrio = vision.shooting(bow_frame) 
         else:#especially mode=="none"
             pass 
         

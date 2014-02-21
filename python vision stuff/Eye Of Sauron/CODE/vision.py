@@ -24,9 +24,8 @@ draw_gui = config.get('debug', 'draw_gui')
 """
     counts the yellow pixels in the camera frame.  If above yellow_pixels_thresh, return hhot, else hnot.
 """
-def autonomous(camera):
+def autonomous(capture):
     time.sleep(auto_delay_every_cycle)
-    _,capture = camera.read()
 #    Convert image to HSV plane using cvtColor() function
     hsvcapture = cv2.cvtColor(capture, cv2.COLOR_BGR2HSV)    
 #    turn it into a binary image representing yellows
@@ -55,9 +54,7 @@ frame_width = int(config.get('camera', 'width'))
     Returns info about the biggest ball.
     @TODO make it work
 """    
-def trackball(camera):
-    _,capture = camera.read()
-    #capture = cv2.flip(capture,1) #Instead, we're just returning width-cx to save cpu cycles.
+def trackball(capture):
     hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV) #maybe sort by rg(b) or (r)gb instead of resource intensive hsv
     #    find pixels that are the right color
     inrangepixels = cv2.inRange(hsvcapture,np.array((track_hue_lower,track_saturation_lower,track_value_lower)),np.array((track_hue_upper,track_saturation_upper,track_value_upper)))#in opencv, HSV is 0-180,0-255,0-255
@@ -91,8 +88,7 @@ def trackball(camera):
     Returns info about the biggest bumper
     @TODO make it work
 """  
-def trackbump(camera):
-    _,capture = camera.read()
+def trackbump(capture):
     hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV)
     inrangepixels = cv2.inRange(hsvcapture,np.array((track_hue_lower,track_saturation_lower,track_value_lower)),np.array((track_hue_upper,track_saturation_upper,track_value_upper)))
 #    Apply erosion and dilation and erosion again to eliminate noise and fill in gaps
@@ -133,8 +129,7 @@ frame_width = int(config.get('camera','width'))
 """
     If you were to shoot now, would it hit ? "shit" : "smiss"
 """
-def shooting(camera):
-    _,capture = camera.read()
+def shooting(capture):
     hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV)        
     inrangepixels = cv2.inRange(hsvcapture,np.array((shoot_hue_lower,shoot_saturation_lower,shoot_value_lower)),np.array((shoot_hue_upper,shoot_saturation_upper,shoot_value_upper)))#in opencv, HSV is 0-180,0-255,0-255
     try:
