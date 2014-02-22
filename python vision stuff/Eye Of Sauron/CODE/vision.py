@@ -29,10 +29,11 @@ def autonomous(capture):
 #    turn it into a binary image representing yellows
     inrangepixels = cv2.inRange(hsvcapture, np.array((auto_hue_lower, auto_saturation_lower, auto_value_lower)), np.array((auto_hue_upper, auto_saturation_upper, auto_value_upper)))  # in opencv, HSV is 0-180,0-255,0-255
     yellows = cv2.countNonZero(inrangepixels)
+    cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
     if(yellows > yellow_pixel_thresh):
-        return("hhot")
+        return(capture,"hhot")
     else:
-        return("hnot")
+        return(capture,"hnot")
      
      
 # get configs for tracking
@@ -58,23 +59,26 @@ def trackball(capture):
     erode = cv2.erode(dilate,None,iterations = 10)
     dilatedagain = cv2.dilate(erode,None,iterations = 5)  
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
     #make a list of only balls
     balls = []
     for contour in contours:
         if mathstuff.is_contour_a_ball(contour):
             balls.append(contour)
     if balls == []:#no balls detected    
-        return("tball,180,120,0")
+        return(capture,"tball,180,120,0")
     #find biggest ball
     biggest_ball = balls[0]
     for ball in balls[1:]:#we might be able to use opencv's contour hierarchy instead of recalculating
         if cv2.contourArea(ball)>cv2.contourArea(biggest_ball):#@TODO optimize, b/c we don't need to be recalculating contour_are all the time.
             biggest_ball = ball
     if cv2.contourArea(biggest_ball) < smallest_ball_area_to_return:
-        return("tball,180,120,0")
+        return(capture,"tball,180,120,0")
     M = cv2.moments(biggest_ball)#an image moment is the weighted average of a blob
     cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
-    return("tball,"+str(frame_width-cx)+","+str(cy)+"," + str(int(cv2.contourArea(biggest_ball))))
+    cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
+    message_to_return = "tball,"+str(frame_width-cx)+","+str(cy)+"," + str(int(cv2.contourArea(biggest_ball)))
+    return (capture,message_to_return)
    
 """
     Returns info about the biggest bumper
@@ -88,21 +92,23 @@ def trackbump(capture):
     erode = cv2.erode(dilate,None,iterations = 10)
     dilatedagain = cv2.dilate(erode,None,iterations = 5)  
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
     bumpers = []
     for contour in contours:
         if not mathstuff.is_contour_a_ball(contour):
             bumpers.append(contour)   
     if bumpers == []:#no bumpers detected  
-        return("tbump,180,120,0")
+        return(capture,"tbump,180,120,0")
     biggest_bumper = bumpers[0]
     for bumper in bumpers[1:]:#to save cpu cyles we could just assume that everything we see is a bumper.  In this mode we are in possession of the ball anyways.
         if cv2.contourArea(bumper)>cv2.contourArea(biggest_bumper):
             biggest_bumper = bumper
     if cv2.contourArea(biggest_bumper) < smallest_bumper_area_to_return:
-        return("tbump,180,120,0")        
+        return(capture,"tbump,180,120,0")        
     M = cv2.moments(biggest_bumper)
     cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
-    return("tbump,"+str(frame_width-cx)+","+str(cy)+"," + str(int(cv2.contourArea(biggest_bumper))))    
+    message_to_return = "tbump,"+str(frame_width-cx)+","+str(cy)+"," + str(int(cv2.contourArea(biggest_bumper)))
+    return(capture,message_to_return)  
 
 shoot_hue_lower = int(config.get('shooting','hue_lower'))
 shoot_hue_upper = int(config.get('shooting','hue_upper'))
@@ -126,11 +132,19 @@ def shooting(capture):
         row_averages = np.mean(inrangepixels, axis=1)
         avg_height=int(np.average(range(0,frame_height), weights=row_averages, axis=0))
     except ZeroDivisionError:
-        avg_height=0
+        avg_height=-1
         
     if(np.sum(row_averages, axis=0)<min_pixel_weight):#if we don't count enough pixels, we probably aren't looking at the target.
-        avg_height=0 
-    if(avg_height<upper_avg and avg_height>lower_avg):
-        return("shit")
-    else:    
-        return("smiss")
+        avg_height=-1
+    is_hit = avg_height<upper_avg and avg_height>lower_avg
+    cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
+    color=(0,0,255)
+    if is_hit:
+        color=(0,255,0)
+    cv2.line(capture,(0,lower_avg),(frame_width,lower_avg),color,5)
+    cv2.line(capture,(0,upper_avg),(frame_width,upper_avg),color,5)
+    cv2.line(capture,(0,avg_height),(frame_width,avg_height),(255,0,0),5)
+    hit = "smiss"
+    if is_hit:
+        hit="shit"
+    return (capture,hit)

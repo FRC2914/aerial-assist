@@ -146,17 +146,18 @@ try:
         _,bow_frame = frontcamera.read()
         _,stern_frame = rearcamera.read() 
         packetforcrio=""
+        
         if time.time()-time_of_last_ping > crio_timeout_time:
             shutdown("Ping Timeout")
             #reconnect will happen because the linux machine will restart this script
         if mode == 'autonomous\n':
-            packetforcrio = vision.autonomous(bow_frame)
+            bow_frame,packetforcrio = vision.autonomous(bow_frame)
         elif mode == 'trackbump\n':
-            packetforcrio = vision.trackbump(bow_frame)
+            bow_frame,packetforcrio = vision.trackbump(bow_frame)
         elif mode == 'trackball\n':
-            packetforcrio = vision.trackball(stern_frame)
+            stern_frame,packetforcrio = vision.trackball(stern_frame)
         elif mode == 'shooting\n':
-            packetforcrio = vision.shooting(bow_frame) 
+            bow_frame,packetforcrio = vision.shooting(bow_frame) 
         else:#especially mode=="none"
             pass 
         
