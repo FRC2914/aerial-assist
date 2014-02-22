@@ -29,7 +29,13 @@ def autonomous(capture):
 #    turn it into a binary image representing yellows
     inrangepixels = cv2.inRange(hsvcapture, np.array((auto_hue_lower, auto_saturation_lower, auto_value_lower)), np.array((auto_hue_upper, auto_saturation_upper, auto_value_upper)))  # in opencv, HSV is 0-180,0-255,0-255
     yellows = cv2.countNonZero(inrangepixels)
+    
     cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
+    cv2.putText(capture,"Mode: autonomous",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))  
+    cv2.rectangle(capture,(15,200),(305,220),(255,0,0),5)
+    cv2.line(capture,(20,210),(int(1.0*yellows/yellow_pixel_thresh*305+10),210),(255,0,0),15)
+    cv2.putText(capture,str(yellows)+"/"+str(yellow_pixel_thresh),(15,180),cv2.FONT_HERSHEY_PLAIN,1,(255,0,0))
+    
     if(yellows > yellow_pixel_thresh):
         return(capture,"hhot")
     else:
@@ -60,6 +66,7 @@ def trackball(capture):
     dilatedagain = cv2.dilate(erode,None,iterations = 5)  
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
+    cv2.putText(capture,"Mode: trackball",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))
     #make a list of only balls
     balls = []
     for contour in contours:
@@ -93,6 +100,7 @@ def trackbump(capture):
     dilatedagain = cv2.dilate(erode,None,iterations = 5)  
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
+    cv2.putText(capture,"Mode: trackbump",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))
     bumpers = []
     for contour in contours:
         if not mathstuff.is_contour_a_ball(contour):
@@ -138,6 +146,7 @@ def shooting(capture):
         avg_height=-1
     is_hit = avg_height<upper_avg and avg_height>lower_avg
     cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
+    cv2.putText(capture,"Mode: shooting",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))
     color=(0,0,255)
     if is_hit:
         color=(0,255,0)
