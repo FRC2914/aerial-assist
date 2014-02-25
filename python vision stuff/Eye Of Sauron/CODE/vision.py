@@ -2,6 +2,7 @@ import math
 import numpy as np
 import ConfigParser
 import time
+import sys
 
 import cv2
 
@@ -51,7 +52,9 @@ track_value_lower = int(config.get('tracking', 'value_lower'))
 track_value_upper = int(config.get('tracking', 'value_upper'))  
 smallest_ball_area_to_return = int(config.get('tracking', 'smallest_ball_area_to_return'))
 smallest_bumper_area_to_return = int(config.get('tracking', 'smallest_bumper_area_to_return'))
-frame_width = int(config.get('camera', 'width'))     
+frame_width = int(config.get('camera', 'width'))
+upper_bump_detect=int(config.get('tracking', 'upper_bump_detect')) #this should be the smaller number! 0,0 is upper left!
+lower_bump_detect=int(config.get('tracking', 'lower_bump_detect')) 
 """
     Returns info about the biggest ball.
     @TODO make it work
@@ -93,29 +96,51 @@ def trackball(capture):
 """  
 def trackbump(capture):
     hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV)
-    inrangepixels = cv2.inRange(hsvcapture,np.array((track_hue_lower,track_saturation_lower,track_value_lower)),np.array((track_hue_upper,track_saturation_upper,track_value_upper)))
-#    Apply erosion and dilation and erosion again to eliminate noise and fill in gaps
+    #only search for bumper in certain region.  This works b/c camera is mounted at same height as bumpers
+    hsvroi=hsvcapture[upper_bump_detect:lower_bump_detect,0:frame_width]    
+    inrangepixels = cv2.inRange(hsvroi,np.array((track_hue_lower,track_saturation_lower,track_value_lower)),np.array((track_hue_upper,track_saturation_upper,track_value_upper)))
     dilate = cv2.dilate(inrangepixels,None,iterations = 5)
     erode = cv2.erode(dilate,None,iterations = 10)
-    dilatedagain = cv2.dilate(erode,None,iterations = 5)  
+    dilatedagain = cv2.dilate(erode,None,iterations = 5) 
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    
+    #draw nice gui
+    cv2.line(capture,(0,lower_bump_detect),(frame_width,lower_bump_detect),(255,0,0),5)
+    cv2.line(capture,(0,upper_bump_detect),(frame_width,upper_bump_detect),(255,0,0),5)
     cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
-    cv2.putText(capture,"Mode: trackbump",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))
-    bumpers = []
-    for contour in contours:
-        if not mathstuff.is_contour_a_ball(contour):
-            bumpers.append(contour)   
-    if bumpers == []:#no bumpers detected  
+    cv2.putText(capture,"Mode: trackbump",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0)) 
+    
+    #bumper info in three separate arrays
+    bumpers = contours    
+    if bumpers == []:#no bumpers detected
         return(capture,"tbump,180,120,0")
-    biggest_bumper = bumpers[0]
-    for bumper in bumpers[1:]:#to save cpu cyles we could just assume that everything we see is a bumper.  In this mode we are in possession of the ball anyways.
-        if cv2.contourArea(bumper)>cv2.contourArea(biggest_bumper):
-            biggest_bumper = bumper
-    if cv2.contourArea(biggest_bumper) < smallest_bumper_area_to_return:
-        return(capture,"tbump,180,120,0")        
-    M = cv2.moments(biggest_bumper)
-    cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
-    message_to_return = "tbump,"+str(frame_width-cx)+","+str(cy)+"," + str(int(cv2.contourArea(biggest_bumper)))
+    bumper_sizes = []
+    for bumper in bumpers:
+        bumper_sizes.append(cv2.contourArea(bumper))
+    bumper_centroids = []
+    for bumper in bumpers:
+        bumper_centroids.append(cv2.moments(bumper))
+    
+    #find biggest bumper (by size)    
+    biggest_bumper_index = 0
+    for i in range(1,len(bumper_sizes)):
+        if bumper_sizes[i]>bumper_sizes[biggest_bumper_index]:
+            biggest_bumper_index = i
+            
+    #all bumper_centroids get a pink dot
+    for bumper_centroid in bumper_centroids:
+        cx,cy = int(bumper_centroid['m10']/bumper_centroid['m00']), int(bumper_centroid['m01']/bumper_centroid['m00'])
+        cv2.circle(capture,(cx,cy+upper_bump_detect),4,(200,110,255),3)
+    #if biggest bumper is really small, ignore it
+    if bumper_sizes[biggest_bumper_index]<smallest_bumper_area_to_return:
+        return(capture,"tbump,180,120,0")
+    #biggest bumper_centroid get a green dot
+    biggest_bumper_centroid=bumper_centroids[biggest_bumper_index]
+    cx,cy = int(biggest_bumper_centroid['m10']/biggest_bumper_centroid['m00']), int(biggest_bumper_centroid['m01']/biggest_bumper_centroid['m00'])
+    cv2.circle(capture,(cx,cy+upper_bump_detect),4,(20,255,60),3)
+    
+    biggest_bumper=bumpers[biggest_bumper_index]
+    message_to_return = "tbump,"+str(cx)+","+str(cy)+"," + str(int(cv2.contourArea(biggest_bumper)))#@TODO get numbers right
     return(capture,message_to_return)  
 
 shoot_hue_lower = int(config.get('shooting','hue_lower'))

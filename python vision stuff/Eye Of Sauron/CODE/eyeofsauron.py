@@ -95,7 +95,7 @@ height = int(config.get('camera','height'))
 width = int(config.get('camera','width'))
 
 #debug
-draw_gui = config.get('debug', 'draw_gui')
+skip_gui = len(sys.argv) >= 2 and sys.argv[1] == "--nogui"#overrides config file
 
 #set up cameras. If that fails, don't bother connecting to cRIO, just exit
 frontcamera = cv2.VideoCapture(0)
@@ -161,7 +161,7 @@ try:
         else:#especially mode=="none"
             pass 
         
-        if(draw_gui=="True"):
+        if(not skip_gui):
             rendered_frame = np.hstack((bow_frame,stern_frame))
             cv2.imshow("frame",rendered_frame)
         
