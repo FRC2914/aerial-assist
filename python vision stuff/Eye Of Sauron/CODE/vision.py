@@ -68,26 +68,47 @@ def trackball(capture):
     erode = cv2.erode(dilate,None,iterations = 10)
     dilatedagain = cv2.dilate(erode,None,iterations = 5)  
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    
+    #draw nice gui
     cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
     cv2.putText(capture,"Mode: trackball",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))
-    #make a list of only balls
+    
+    #make a arrays of balls, ball sizes and ball centroids
     balls = []
     for contour in contours:
         if mathstuff.is_contour_a_ball(contour):
             balls.append(contour)
     if balls == []:#no balls detected    
         return(capture,"tball,180,120,0")
-    #find biggest ball
-    biggest_ball = balls[0]
-    for ball in balls[1:]:#we might be able to use opencv's contour hierarchy instead of recalculating
-        if cv2.contourArea(ball)>cv2.contourArea(biggest_ball):#@TODO optimize, b/c we don't need to be recalculating contour_are all the time.
-            biggest_ball = ball
-    if cv2.contourArea(biggest_ball) < smallest_ball_area_to_return:
+    ball_sizes=[]
+    for ball in balls:
+        ball_sizes.append(cv2.contourArea(ball))
+    ball_centroids = []
+    for ball in balls:
+        ball_centroids.append(cv2.moments(ball))
+    
+    #find biggest ball (by size)    
+    biggest_ball_index = 0
+    for i in range(1,len(ball_sizes)):
+        if ball_sizes[i]>ball_sizes[biggest_ball_index]:
+            biggest_ball_index = i
+    biggest_ball=balls[biggest_ball_index]
+    
+    #all ball_centroids get a pink dot
+    for ball_centroid in ball_centroids:
+        cx,cy = int(ball_centroid['m10']/ball_centroid['m00']), int(ball_centroid['m01']/ball_centroid['m00'])
+        cv2.circle(capture,(cx,cy),4,(200,110,255),3)
+        
+    #if biggest ball is tiny, ignore it an return       
+    if ball_sizes[biggest_ball_index] < smallest_ball_area_to_return:
         return(capture,"tball,180,120,0")
-    M = cv2.moments(biggest_ball)#an image moment is the weighted average of a blob
-    cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
-    cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
-    message_to_return = "tball,"+str(frame_width-cx)+","+str(cy)+"," + str(int(cv2.contourArea(biggest_ball)))
+    
+    #biggest ball gets a green dot
+    biggest_ball_centroid=ball_centroids[biggest_ball_index]
+    cx,cy = int(biggest_ball_centroid['m10']/biggest_ball_centroid['m00']), int(biggest_ball_centroid['m01']/biggest_ball_centroid['m00'])
+    cv2.circle(capture,(cx,cy),4,(20,255,60),3)
+    
+    message_to_return = "tball,"+str(frame_width-cx)+","+str(cy)+"," + str(int(ball_sizes[biggest_ball_index]))
     return (capture,message_to_return)
    
 """
@@ -103,7 +124,7 @@ def trackbump(capture):
     erode = cv2.erode(dilate,None,iterations = 10)
     dilatedagain = cv2.dilate(erode,None,iterations = 5) 
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
-    
+
     #draw nice gui
     cv2.line(capture,(0,lower_bump_detect),(frame_width,lower_bump_detect),(255,0,0),5)
     cv2.line(capture,(0,upper_bump_detect),(frame_width,upper_bump_detect),(255,0,0),5)
@@ -140,7 +161,7 @@ def trackbump(capture):
     cv2.circle(capture,(cx,cy+upper_bump_detect),4,(20,255,60),3)
     
     biggest_bumper=bumpers[biggest_bumper_index]
-    message_to_return = "tbump,"+str(cx)+","+str(cy)+"," + str(int(cv2.contourArea(biggest_bumper)))#@TODO get numbers right
+    message_to_return = "tbump,"+str(cx)+","+str(cy+upper_bump_detect)+"," + str(int(bumper_sizes[biggest_bumper_index]))
     return(capture,message_to_return)  
 
 shoot_hue_lower = int(config.get('shooting','hue_lower'))
