@@ -79,7 +79,7 @@ def trackball(capture):
         if mathstuff.is_contour_a_ball(contour):
             balls.append(contour)
     if balls == []:#no balls detected    
-        return(capture,"tball,180,120,0")
+        return(capture,"tball,160,120,0")
     ball_sizes=[]
     for ball in balls:
         ball_sizes.append(cv2.contourArea(ball))
@@ -99,9 +99,9 @@ def trackball(capture):
         cx,cy = int(ball_centroid['m10']/ball_centroid['m00']), int(ball_centroid['m01']/ball_centroid['m00'])
         cv2.circle(capture,(cx,cy),4,(200,110,255),3)
         
-    #if biggest ball is tiny, ignore it an return       
+    #if biggest ball is tiny, ignore it and return       
     if ball_sizes[biggest_ball_index] < smallest_ball_area_to_return:
-        return(capture,"tball,180,120,0")
+        return(capture,"tball,160,120,0")
     
     #biggest ball gets a green dot
     biggest_ball_centroid=ball_centroids[biggest_ball_index]
@@ -134,7 +134,7 @@ def trackbump(capture):
     #bumper info in three separate arrays
     bumpers = contours    
     if bumpers == []:#no bumpers detected
-        return(capture,"tbump,180,120,0")
+        return(capture,"tbump,160,120,0")
     bumper_sizes = []
     for bumper in bumpers:
         bumper_sizes.append(cv2.contourArea(bumper))
@@ -154,7 +154,7 @@ def trackbump(capture):
         cv2.circle(capture,(cx,cy+upper_bump_detect),4,(200,110,255),3)
     #if biggest bumper is really small, ignore it
     if bumper_sizes[biggest_bumper_index]<smallest_bumper_area_to_return:
-        return(capture,"tbump,180,120,0")
+        return(capture,"tbump,160,120,0")
     #biggest bumper_centroid get a green dot
     biggest_bumper_centroid=bumper_centroids[biggest_bumper_index]
     cx,cy = int(biggest_bumper_centroid['m10']/biggest_bumper_centroid['m00']), int(biggest_bumper_centroid['m01']/biggest_bumper_centroid['m00'])

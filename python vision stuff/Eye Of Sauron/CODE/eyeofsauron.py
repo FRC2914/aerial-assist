@@ -173,7 +173,7 @@ try:
                 sock.send(packetforcrio + "\n")
             except Exception as e:
                 logger.log(time.time()-start_time,"Could not send packet. Details: " + str(e), 40)
-                if str(e)[:10] == "[ERRNO 32]":#@TODO make this work!!! only relevant on a linux pc
+                if str(e)[:10] == "[Errno 32]":#@TODO make this work!!! only relevant on a linux pc
                     shutdown("Lost connection")
         #Receive and deal with packets        
         fromcrio = getcrio(sock)
