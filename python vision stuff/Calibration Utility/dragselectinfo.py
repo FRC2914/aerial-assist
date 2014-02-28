@@ -1,24 +1,12 @@
 #!/usr/bin/env python
 
 '''
-Multitarget planar tracking
-==================
+Calibration utility made by Nic.  Modified from plane_tracker.py sample cv2 program.
+Drage a rectangle around anything and it returns the biggest/smallest h s and v.
+Sometimes you have to run it multiple times bc of random glitches.
 
-Example of using features2d framework for interactive video homography matching.
-ORB features and FLANN matcher are used. This sample provides PlaneTracker class
-and an example of its usage.
+#@TODO mak i more like this: http://stackoverflow.com/questions/16195190/python-cv2-how-do-i-draw-a-line-on-an-image-with-mouse-then-return-line-coord
 
-video: http://www.youtube.com/watch?v=pzVbhxx6aog
-
-Usage
------
-plane_tracker.py [<video source>]
-
-Keys:
-   SPACE  -  pause video
-   c      -  clear targets
-
-Select a textured planar object to track by drawing a box with a mouse.
 '''
 
 import numpy as np
@@ -88,7 +76,8 @@ class PlaneTracker:
         self.frame_points, self.frame_descrs = self.detect_features(frame)
         if len(self.frame_points) < MIN_MATCH_COUNT:
             return []
-        matches = self.matcher.knnMatch(self.frame_descrs, k = 2)
+        #matches = self.matcher.knnMatch(self.frame_descrs, k = 2)
+        matches=[]
         matches = [m[0] for m in matches if len(m) == 2 and m[0].distance < m[1].distance * 0.75]
         if len(matches) < MIN_MATCH_COUNT:
             return []
@@ -155,8 +144,6 @@ class App:
                     cv2.polylines(vis, [np.int32(tr.quad)], True, (255, 255, 255), 2)
                     hsvcapture = cv2.cvtColor(vis,cv2.COLOR_BGR2HSV) 
                     
-                    print tr.quad
-                    
                     hsvroi = hsvcapture[abs(tr.quad[0][1]+5):abs(tr.quad[2][1]-5),abs(tr.quad[0][0]+5):abs(tr.quad[2][0]-5)]
                     cv2.imshow("hsvroi",hsvroi)
                     
@@ -200,16 +187,6 @@ class App:
                     
                     cv2.waitKey(500)
                     sys.exit(0)                    
-                    #for i in range(len(hsvroi[1])):
-                        #for j in range(N):
-                            #for k in range(N):
-                    
-                    #for x,y,z in hsvroi:
-                        #print x
-                    
-                    
-                    #_,capture = camera.read()
-                    #print capture[0][0][0]
         
 
             self.rect_sel.draw(vis)
