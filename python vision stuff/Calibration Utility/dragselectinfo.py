@@ -153,11 +153,59 @@ class App:
                 tracked = self.tracker.track(self.frame)
                 for tr in tracked:
                     cv2.polylines(vis, [np.int32(tr.quad)], True, (255, 255, 255), 2)
-                    hsvcapture=cv2.cvtColor(vis,cv2.COLOR_BGR2HSV) 
-                    roi = hsvcapture[np.int32(tr.quad)]
+                    hsvcapture = cv2.cvtColor(vis,cv2.COLOR_BGR2HSV) 
                     
-                
+                    print tr.quad
                     
+                    hsvroi = hsvcapture[abs(tr.quad[0][1]+5):abs(tr.quad[2][1]-5),abs(tr.quad[0][0]+5):abs(tr.quad[2][0]-5)]
+                    cv2.imshow("hsvroi",hsvroi)
+                    
+                    minh = 300
+                    maxh = 0
+                    
+                    mins = 300
+                    maxs = 0
+                    
+                    minv = 300
+                    maxv = 0
+                    
+                    for x in hsvroi:
+                        for y in x:
+                                
+                            if minh > y[0]:
+                                minh = y[0]
+                                 
+                            if mins > y[1]:
+                                mins = y[1]
+                            
+                            if minv > y[2]:
+                                minv = y[2]
+                                 
+                            if maxh < y[0]:
+                                maxh = y[0]
+                                 
+                            if maxs < y[1]:
+                                maxs = y[1]
+                            
+                            if maxv < y[2]:
+                                maxv = y[2]
+                                   
+                    print "Min H: " + str(minh) + "\n"
+                    print "Max H: " + str(maxh) + "\n\n"
+                    print "Min S: " + str(mins) + "\n"
+                    print "Max S: " + str(maxs) + "\n\n"
+                    print "Min V: " + str(minv) + "\n"
+                    print "Max V: " + str(maxv) + "\n\n"
+                    
+                    
+                    cv2.waitKey(500)
+                    sys.exit(0)                    
+                    #for i in range(len(hsvroi[1])):
+                        #for j in range(N):
+                            #for k in range(N):
+                    
+                    #for x,y,z in hsvroi:
+                        #print x
                     
                     
                     #_,capture = camera.read()
