@@ -96,7 +96,7 @@ height = int(config.get('camera','height'))
 width = int(config.get('camera','width'))
 
 #debug
-skip_gui = len(sys.argv) >= 2 and sys.argv[1] == "--nogui"#overrides config file
+skip_gui = len(sys.argv) >= 2 and sys.argv[1] == "--nogui"
 
 #set up cameras. If that fails, don't bother connecting to cRIO, just exit
 frontcamera = cv2.VideoCapture(0)
