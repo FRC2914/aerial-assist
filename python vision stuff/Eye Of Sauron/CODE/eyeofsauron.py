@@ -58,8 +58,8 @@ def shutdown(logmessage):
         frontcamera.release()
         rearcamera.release()
         logger.log(time.time()-start_time,"Shutting down: " + logger.logmessage, 20)
-    except Exception:
-        logger.log(time.time()-start_time,"Had trouble shutting down", 50)
+    except Exception as e:
+        logger.log(time.time()-start_time,"Had trouble shutting down: "+ str(e), 50)
     sys.exit(logmessage)
 
 
@@ -109,16 +109,13 @@ rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
 if frontcamera.get(3)==0.0:
     shutdown("Could not connect to front webcam.  Exiting.")
-    pass
 if rearcamera.get(3)==0.0:
     shutdown("Could not connect to rear webcam.  Exiting.")
-    pass
         
 #Connect to cRio.
 crio_ip = config.get('network_communication','crio_ip')
 crio_tcp_loc_coords_port = int(config.get('network_communication','crio_tcp_loc_coords_port'))
 send_over_network = config.get('network_communication','send_over_network')
-crio_timeout_time = config.get('network_communication','crio_timeout_time')
 crio_on_localhost = config.get('debug','crio_on_localhost')
 if crio_on_localhost == "True":
     crio_ip="127.0.0.1"
@@ -130,6 +127,8 @@ if(send_over_network=="True"):
     logger.log(time.time()-start_time,"cRIO connected", 20)
     
 mode = "none"
+
+vision.set_draw_gui(not skip_gui)
 
 time_of_last_ping=time.time()#if it's been more than 500ms since we heard from the cRio, close socket and restart.
 time_of_last_fps_log=time.time()+3
@@ -148,9 +147,6 @@ try:
         _,stern_frame = rearcamera.read() 
         packetforcrio=""
         
-        if time.time()-time_of_last_ping > crio_timeout_time:
-            shutdown("Ping Timeout")
-            #reconnect will happen because the linux machine will restart this script
         if mode == 'autonomous\n':
             bow_frame,packetforcrio = vision.autonomous(bow_frame)
         elif mode == 'trackbump\n':
@@ -168,12 +164,12 @@ try:
         
         #Send Packets
         if packetforcrio != "" and send_over_network=="True":
-            #logger.log(time.time()-start_time,"Sending to cRio: " + packetforcrio, 10)
+            logger.log(time.time()-start_time,"Sending to cRio: " + packetforcrio, 10)
             try:
                 sock.send(packetforcrio + "\n")
             except Exception as e:
                 logger.log(time.time()-start_time,"Could not send packet. Details: " + str(e), 40)
-                if str(e)[:10] == "[Errno 32]":#@TODO make this work!!! only relevant on a linux pc
+                if str(e)[:10] == "[Errno 32]":
                     shutdown("Lost connection")
         #Receive and deal with packets        
         fromcrio = getcrio(sock)
@@ -184,9 +180,6 @@ try:
                     mode = fromcrio[1:]
                     sock.send(fromcrio)
                     logger.log(time.time()-start_time,"Mode Changed to: " + mode, 20)
-                elif(s[:1]=="p"):
-                    sock.send("p\n")
-                    time_of_last_ping=time.time()
                     
         if cv2.waitKey(1) == 27:
             break

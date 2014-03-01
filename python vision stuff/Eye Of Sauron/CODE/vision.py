@@ -9,6 +9,10 @@ import cv2
 import mathstuff
 
 
+draw_gui = True
+def set_draw_gui(bool):
+    draw_gui=bool
+
 config = ConfigParser.RawConfigParser()
 config.read("settings.conf")
 # get configs for autonomous
@@ -31,11 +35,14 @@ def autonomous(capture):
     inrangepixels = cv2.inRange(hsvcapture, np.array((auto_hue_lower, auto_saturation_lower, auto_value_lower)), np.array((auto_hue_upper, auto_saturation_upper, auto_value_upper)))  # in opencv, HSV is 0-180,0-255,0-255
     yellows = cv2.countNonZero(inrangepixels)
     
-    cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
-    cv2.putText(capture,"Mode: autonomous",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))  
-    cv2.rectangle(capture,(15,200),(305,220),(255,0,0),5)
-    cv2.line(capture,(20,210),(int(1.0*yellows/yellow_pixel_thresh*305+10),210),(255,0,0),15)
-    cv2.putText(capture,str(yellows)+"/"+str(yellow_pixel_thresh),(15,180),cv2.FONT_HERSHEY_PLAIN,1,(255,0,0))
+    if draw_gui:
+        cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
+        cv2.putText(capture,"Mode: autonomous",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))  
+        cv2.rectangle(capture,(15,200),(305,220),(255,0,0),5)
+        cv2.line(capture,(20,210),(int(1.0*yellows/yellow_pixel_thresh*305+10),210),(255,0,0),15)
+        cv2.putText(capture,str(yellows)+"/"+str(yellow_pixel_thresh),(15,180),cv2.FONT_HERSHEY_PLAIN,1,(255,0,0))
+    else:
+        capture=None
     
     if(yellows > yellow_pixel_thresh):
         return(capture,"hhot")
@@ -57,7 +64,6 @@ upper_bump_detect=int(config.get('tracking', 'upper_bump_detect')) #this should 
 lower_bump_detect=int(config.get('tracking', 'lower_bump_detect')) 
 """
     Returns info about the biggest ball.
-    @TODO make it work
 """    
 def trackball(capture):
     hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV) #maybe sort by rg(b) or (r)gb instead of resource intensive hsv
@@ -69,10 +75,11 @@ def trackball(capture):
     dilatedagain = cv2.dilate(erode,None,iterations = 5)  
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     
-    #draw nice gui
-    cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
-    cv2.putText(capture,"Mode: trackball",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))
-    
+    if draw_gui:
+        cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
+        cv2.putText(capture,"Mode: trackball",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))
+    else:
+        capture=None
     #make a arrays of balls, ball sizes and ball centroids
     balls = []
     for contour in contours:
@@ -94,26 +101,27 @@ def trackball(capture):
             biggest_ball_index = i
     biggest_ball=balls[biggest_ball_index]
     
-    #all ball_centroids get a pink dot
-    for ball_centroid in ball_centroids:
-        cx,cy = int(ball_centroid['m10']/ball_centroid['m00']), int(ball_centroid['m01']/ball_centroid['m00'])
-        cv2.circle(capture,(cx,cy),4,(200,110,255),3)
+    if draw_gui:
+        #all ball_centroids get a pink dot
+        for ball_centroid in ball_centroids:
+            cx,cy = int(ball_centroid['m10']/ball_centroid['m00']), int(ball_centroid['m01']/ball_centroid['m00'])
+            cv2.circle(capture,(cx,cy),4,(200,110,255),3)
         
     #if biggest ball is tiny, ignore it and return       
     if ball_sizes[biggest_ball_index] < smallest_ball_area_to_return:
         return(capture,"tball,160,120,0")
     
-    #biggest ball gets a green dot
-    biggest_ball_centroid=ball_centroids[biggest_ball_index]
-    cx,cy = int(biggest_ball_centroid['m10']/biggest_ball_centroid['m00']), int(biggest_ball_centroid['m01']/biggest_ball_centroid['m00'])
-    cv2.circle(capture,(cx,cy),4,(20,255,60),3)
+    if draw_gui:
+        #biggest ball gets a green dot
+        biggest_ball_centroid=ball_centroids[biggest_ball_index]
+        cx,cy = int(biggest_ball_centroid['m10']/biggest_ball_centroid['m00']), int(biggest_ball_centroid['m01']/biggest_ball_centroid['m00'])
+        cv2.circle(capture,(cx,cy),4,(20,255,60),3)
     
     message_to_return = "tball,"+str(frame_width-cx)+","+str(cy)+"," + str(int(ball_sizes[biggest_ball_index]))
     return (capture,message_to_return)
    
 """
     Returns info about the biggest bumper
-    @TODO make it work
 """  
 def trackbump(capture):
     hsvcapture = cv2.cvtColor(capture,cv2.COLOR_BGR2HSV)
@@ -124,13 +132,15 @@ def trackbump(capture):
     erode = cv2.erode(dilate,None,iterations = 10)
     dilatedagain = cv2.dilate(erode,None,iterations = 5) 
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
-
-    #draw nice gui
-    cv2.line(capture,(0,lower_bump_detect),(frame_width,lower_bump_detect),(255,0,0),5)
-    cv2.line(capture,(0,upper_bump_detect),(frame_width,upper_bump_detect),(255,0,0),5)
-    cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
-    cv2.putText(capture,"Mode: trackbump",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0)) 
     
+    if draw_gui:
+        #draw nice gui
+        cv2.line(capture,(0,lower_bump_detect),(frame_width,lower_bump_detect),(255,0,0),5)
+        cv2.line(capture,(0,upper_bump_detect),(frame_width,upper_bump_detect),(255,0,0),5)
+        cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
+        cv2.putText(capture,"Mode: trackbump",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0)) 
+    else:
+        capture=None
     #bumper info in three separate arrays
     bumpers = contours    
     if bumpers == []:#no bumpers detected
@@ -147,18 +157,21 @@ def trackbump(capture):
     for i in range(1,len(bumper_sizes)):
         if bumper_sizes[i]>bumper_sizes[biggest_bumper_index]:
             biggest_bumper_index = i
+    
+    if draw_gui:        
+        #all bumper_centroids get a pink dot
+        for bumper_centroid in bumper_centroids:
+            cx,cy = int(bumper_centroid['m10']/bumper_centroid['m00']), int(bumper_centroid['m01']/bumper_centroid['m00'])
+            cv2.circle(capture,(cx,cy+upper_bump_detect),4,(200,110,255),3)
             
-    #all bumper_centroids get a pink dot
-    for bumper_centroid in bumper_centroids:
-        cx,cy = int(bumper_centroid['m10']/bumper_centroid['m00']), int(bumper_centroid['m01']/bumper_centroid['m00'])
-        cv2.circle(capture,(cx,cy+upper_bump_detect),4,(200,110,255),3)
     #if biggest bumper is really small, ignore it
     if bumper_sizes[biggest_bumper_index]<smallest_bumper_area_to_return:
         return(capture,"tbump,160,120,0")
-    #biggest bumper_centroid get a green dot
-    biggest_bumper_centroid=bumper_centroids[biggest_bumper_index]
-    cx,cy = int(biggest_bumper_centroid['m10']/biggest_bumper_centroid['m00']), int(biggest_bumper_centroid['m01']/biggest_bumper_centroid['m00'])
-    cv2.circle(capture,(cx,cy+upper_bump_detect),4,(20,255,60),3)
+    if draw_gui:
+        #biggest bumper_centroid get a green dot
+        biggest_bumper_centroid=bumper_centroids[biggest_bumper_index]
+        cx,cy = int(biggest_bumper_centroid['m10']/biggest_bumper_centroid['m00']), int(biggest_bumper_centroid['m01']/biggest_bumper_centroid['m00'])
+        cv2.circle(capture,(cx,cy+upper_bump_detect),4,(20,255,60),3)
     
     biggest_bumper=bumpers[biggest_bumper_index]
     message_to_return = "tbump,"+str(cx)+","+str(cy+upper_bump_detect)+"," + str(int(bumper_sizes[biggest_bumper_index]))
@@ -191,14 +204,17 @@ def shooting(capture):
     if(np.sum(row_averages, axis=0)<min_pixel_weight):#if we don't count enough pixels, we probably aren't looking at the target.
         avg_height=-1
     is_hit = avg_height<upper_avg and avg_height>lower_avg
-    cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
-    cv2.putText(capture,"Mode: shooting",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))
-    color=(0,0,255)
-    if is_hit:
-        color=(0,255,0)
-    cv2.line(capture,(0,lower_avg),(frame_width,lower_avg),color,5)
-    cv2.line(capture,(0,upper_avg),(frame_width,upper_avg),color,5)
-    cv2.line(capture,(0,avg_height),(frame_width,avg_height),(255,0,0),5)
+    if draw_gui:
+        cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
+        cv2.putText(capture,"Mode: shooting",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))
+        color=(0,0,255)
+        if is_hit:
+            color=(0,255,0)
+        cv2.line(capture,(0,lower_avg),(frame_width,lower_avg),color,5)
+        cv2.line(capture,(0,upper_avg),(frame_width,upper_avg),color,5)
+        cv2.line(capture,(0,avg_height),(frame_width,avg_height),(255,0,0),5)
+    else:
+        capture=None
     hit = "smiss"
     if is_hit:
         hit="shit"
