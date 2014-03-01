@@ -1,4 +1,13 @@
 #!/usr/bin/python2
+'''
+calibration utility made by Seb.  some code was written by Nic.  Some was copied fom here: this: http://stackoverflow.com/questions/16195190/python-cv2-how-do-i-draw-a-line-on-an-image-with-mouse-then-return-line-coord
+
+Instructions:
+Right click to draw a line somewhere
+',' and '.' increase and decrease exposure
+left click an drag selects a rectangle, then the upper and lower bound of h,s&v are printed to the console
+
+'''
 
 import cv2
 import numpy as np
@@ -8,7 +17,6 @@ import sys
 
 
 cap = cv2.VideoCapture(0)
-cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,50) #time in milliseconds. 5 gives dark image. 100 gives bright image.
 cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,320)
 cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,240)
 start=[]
@@ -23,9 +31,10 @@ def on_mouse(event, x, y, flags, params):
         hsvcapture = cv2.cvtColor(img,cv2.COLOR_BGR2HSV) 
         hsvroi = hsvcapture[start[0][1]:y,start[0][0]:x]
         cv2.imshow("hsvroi",hsvroi)
+        cv2.blur(hsvroi,(250,250))
         minh = 300
         maxh = 0
-                   
+        print hsvroi           
         mins = 300
         maxs = 0
                     
@@ -52,21 +61,32 @@ def on_mouse(event, x, y, flags, params):
                 if maxv < y[2]:
                     maxv = y[2]
                                    
-        print "Min H: " + str(minh) + "\n"
-        print "Max H: " + str(maxh) + "\n\n"
-        print "Min S: " + str(mins) + "\n"
-        print "Max S: " + str(maxs) + "\n\n"
-        print "Min V: " + str(minv) + "\n"
-        print "Max V: " + str(maxv) + "\n\n"
+        print "Min H: " + str(minh) 
+        print "Max H: " + str(maxh) + "\n"
+        print "Min S: " + str(mins)
+        print "Max S: " + str(maxs) + "\n"
+        print "Min V: " + str(minv)
+        print "Max V: " + str(maxv) + "\n"
                     
-        cv2.waitKey(5000)
+        cv2.waitKey(25000)
         sys.exit(0)
-
-count = 0
+        
+print __doc__
+exposure=50
+cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)
+cv2.waitKey(50)
+print "exposure: " + str(exposure) 
 while(1):
     _,img = cap.read()
-
     cv2.namedWindow('real image')
     cv2.cv.SetMouseCallback('real image', on_mouse, 0)
     cv2.imshow('real image', img)
-    cv2.waitKey(50)
+    key_pressed = cv2.waitKey(50)
+    if key_pressed == 2621440:
+        exposure=exposure-3
+        cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)
+        print "exposure: " + str(cap.get(cv2.cv.CV_CAP_PROP_EXPOSURE))
+    elif key_pressed == 2490368:
+        exposure=exposure+3
+        cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)
+        print "exposure: " + str(cap.get(cv2.cv.CV_CAP_PROP_EXPOSURE))
