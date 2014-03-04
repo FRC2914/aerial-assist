@@ -3,7 +3,7 @@
 calibration utility made by Seb.  some code was written by Nic.  Some was copied fom here: this: http://stackoverflow.com/questions/16195190/python-cv2-how-do-i-draw-a-line-on-an-image-with-mouse-then-return-line-coord
 
 Instructions:
-Right click to draw a line somewhere
+Right click to draw a line horizontal line there.  Space to remove the most recent line.
 ',' and '.' increase and decrease exposure
 left click an drag selects a rectangle, then the upper and lower bound of h,s&v are printed to the console
 
@@ -68,18 +68,24 @@ def on_mouse(event, x, y, flags, params):
         print "Min V: " + str(minv)
         print "Max V: " + str(maxv) + "\n"
                     
-        cv2.waitKey(25000)
-        sys.exit(0)
+        cv2.waitKey(5000)
+    elif event == cv2.cv.CV_EVENT_RBUTTONDOWN:
+        lines.append(y)
+    
         
 print __doc__
 exposure=50
 cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)
 cv2.waitKey(50)
 print "exposure: " + str(exposure) 
+lines=[]
 while(1):
     _,img = cap.read()
     cv2.namedWindow('real image')
     cv2.cv.SetMouseCallback('real image', on_mouse, 0)
+    for y in lines:
+        cv2.line(img,(0,y),(360,y),(255,0,0))
+        cv2.putText(img,str(y),(10,y+15),cv2.FONT_HERSHEY_PLAIN,1,(255,0,0)) 
     cv2.imshow('real image', img)
     key_pressed = cv2.waitKey(50)
     if key_pressed == 2621440:
@@ -90,3 +96,5 @@ while(1):
         exposure=exposure+3
         cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)
         print "exposure: " + str(cap.get(cv2.cv.CV_CAP_PROP_EXPOSURE))
+    elif key_pressed == 32:
+        lines=lines[:len(lines)-1]#remove most recent
