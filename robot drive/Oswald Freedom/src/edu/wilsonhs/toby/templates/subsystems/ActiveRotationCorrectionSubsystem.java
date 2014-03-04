@@ -18,7 +18,8 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     private double PIDoutput;
 
     public ActiveRotationCorrectionSubsystem(){
-        super(.02, 0, 0.02);//0.05,0,0.13 is really good!
+        super(.05, 0, 0.13);//0.05,0,0.13 is really good!
+        //oswald setting: 0.02,0,0.02
         enable();
     }
     
