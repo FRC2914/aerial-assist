@@ -78,11 +78,18 @@ def establishconnection(ip,port):
         try:
             sock.connect((crio_ip, crio_tcp_loc_coords_port))
             sock.setblocking(0)
-            return sock
+            time.sleep(2.0)
+            if select.select([sock], [], [], 0)[0]:
+                return sock
+            else:
+                sock.close()
+                sock=None
+                sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+                raise Exception("cRIO not responding")
         except Exception as e:
             logger.log(time.time()-start_time,"Coudn't connect to cRIO. Details:" + str(e), 50)
             time.sleep(2)
-            continue 
+            continue         
     return None
 
 start_time=time.time()
