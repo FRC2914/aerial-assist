@@ -31,7 +31,7 @@ def on_mouse(event, x, y, flags, params):
         img = cv2.medianBlur(img,17)#Change blur amount here!
         hsvcapture = cv2.cvtColor(img,cv2.COLOR_BGR2HSV) 
         hsvroi = hsvcapture[start[0][1]:y,start[0][0]:x]
-        cv2.imshow("hsvroi",hsvroi)
+        #cv2.imshow("hsvroi",hsvroi)
         minh = 300
         maxh = 0          
         mins = 300
