@@ -11,11 +11,13 @@ import edu.wilsonhs.toby.templates.subsystems.ServerSubsystem;
 /**
  * The base for all commands. All atomic commands should subclass CommandBase.
  * CommandBase stores creates and stores each control system. To access a
- * subsystem elsewhere in your code in your code use CommandBase.exampleSubsystem
+ * subsystem elsewhere in your code in your code use
+ * CommandBase.exampleSubsystem
+ *
  * @author Author
  */
 public abstract class CommandBase extends Command {
-    
+
     public static ServerSubsystem serverSubsystem = new ServerSubsystem();
     public static ActiveRotationCorrectionSubsystem activeRotationCorrectionSubsystem = new ActiveRotationCorrectionSubsystem();
     public static ArmSubsystem armSubsystem = new ArmSubsystem();
@@ -30,10 +32,13 @@ public abstract class CommandBase extends Command {
         // yet. Thus, their requires() statements may grab null pointers. Bad
         // news. Don't move it.
         oi = new OI();
-        serverSubsystem.openServer();
-        serverSubsystem.instantiateServer();
-        serverSubsystem.startServerLoop();
-
+        new Thread() {
+            public void run() {
+                serverSubsystem.openServer();
+                serverSubsystem.instantiateServer();
+                serverSubsystem.startServerLoop();
+            }
+        }.start();
         // Show what command your subsystem is running on the SmartDashboard
         SmartDashboard.putData(exampleSubsystem);
     }

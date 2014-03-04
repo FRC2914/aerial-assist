@@ -45,6 +45,7 @@ public class RobotTemplate extends IterativeRobot {
     }
 
     public void autonomousInit() {
+        System.out.println("autonomous");
         // schedule the autonomous command (example)
         autonomousCommand.start();
         robotDriveCommand.start();
@@ -59,6 +60,7 @@ public class RobotTemplate extends IterativeRobot {
     }
 
     public void teleopInit() {
+        robotDriveCommand.start();
 	// This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to 
         // continue until interrupted by another command, remove
