@@ -30,14 +30,12 @@ def on_mouse(event, x, y, flags, params):
         _,img=cap.read()
         img = cv2.medianBlur(img,17)#Change blur amount here!
         hsvcapture = cv2.cvtColor(img,cv2.COLOR_BGR2HSV) 
-        hsvroi = hsvcapture[start[0][1]:y,start[0][0]:x]
-        #cv2.imshow("hsvroi",hsvroi)
-        minh = 300
+        hsvroi = hsvcapture[start[len(start)-1][1]:y,start[len(start)-1][0]:x]
+        minh = 9999
         maxh = 0          
-        mins = 300
-        maxs = 0
-                    
-        minv = 300
+        mins = 9999
+        maxs = 0 
+        minv = 9999
         maxv = 0
                     
         for x in hsvroi:
@@ -66,10 +64,7 @@ def on_mouse(event, x, y, flags, params):
         print "Max S: " + str(maxs) + "\n"
         print "Min V: " + str(minv)
         print "Max V: " + str(maxv) + "\n"
-                    
-        cv2.waitKey(5000)
-        cv2.destroyWindow("hsvroi")
-        cv2.destroyWindow("blurred")
+        
     elif event == cv2.cv.CV_EVENT_RBUTTONDOWN:
         lines.append(y)
     
