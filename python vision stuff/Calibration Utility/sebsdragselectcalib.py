@@ -16,7 +16,7 @@ import ConfigParser
 import sys
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,320)
 cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,240)
 start=[]
@@ -70,9 +70,8 @@ def on_mouse(event, x, y, flags, params):
     
         
 print __doc__
-exposure=50
+exposure=0.25
 cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)
-cv2.waitKey(50)
 print "exposure: " + str(exposure) 
 lines=[]
 while(1):
@@ -83,14 +82,18 @@ while(1):
         cv2.line(img,(0,y),(360,y),(255,0,0))
         cv2.putText(img,str(y),(10,y+15),cv2.FONT_HERSHEY_PLAIN,1,(255,0,0)) 
     cv2.imshow('real image', img)
-    key_pressed = cv2.waitKey(50)
-    if key_pressed == 2621440:
-        exposure=exposure-3
+    key_pressed = cv2.waitKey(25)
+    if key_pressed == 65364:#2621440 on windows
+        exposure=exposure-0.03
+	print "expected exposure: " + str(exposure)
         cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)
+	cv2.waitKey(250)
         print "exposure: " + str(cap.get(cv2.cv.CV_CAP_PROP_EXPOSURE))
-    elif key_pressed == 2490368:
-        exposure=exposure+3
+    elif key_pressed == 65362:#2490368 on widows
+        exposure=exposure+0.03
+	print "expected exposure: " + str(exposure)
         cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)
+	cv2.waitKey(250)
         print "exposure: " + str(cap.get(cv2.cv.CV_CAP_PROP_EXPOSURE))
     elif key_pressed == 32:
         lines=lines[:len(lines)-1]#remove most recent
