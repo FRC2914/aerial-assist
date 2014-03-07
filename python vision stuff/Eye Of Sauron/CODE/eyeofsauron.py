@@ -98,7 +98,7 @@ start_time=time.time()
 config = ConfigParser.RawConfigParser()
 config.read("settings.conf")
 log_fps=config.get('debug','log_fps')
-exposure = int(config.get('camera','exposure'))
+exposure = float(config.get('camera','exposure'))
 height = int(config.get('camera','height'))
 width = int(config.get('camera','width'))
 
@@ -107,11 +107,11 @@ skip_gui = len(sys.argv) >= 2 and sys.argv[1] == "--nogui"
 
 #set up cameras. If that fails, don't bother connecting to cRIO, just exit
 frontcamera = cv2.VideoCapture(0)
-frontcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 5 gives dark image. 100 gives bright image.
+frontcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 0.05 gives dark image. 0.10 gives bright image.
 frontcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
 frontcamera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
 rearcamera = cv2.VideoCapture(1)
-rearcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 5 gives dark image. 100 gives bright image.
+rearcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 0.05 gives dark image. 0.10 gives bright image.
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
 if frontcamera.get(3)==0.0:
@@ -137,7 +137,6 @@ mode = "none"
 
 vision.set_draw_gui(not skip_gui)
 
-time_of_last_ping=time.time()#if it's been more than 500ms since we heard from the cRio, close socket and restart.
 time_of_last_fps_log=time.time()+3
 cycles=0
 try:
@@ -190,7 +189,7 @@ try:
                     
         if cv2.waitKey(1) == 27:
             break
-except KeyboardInterrupt:
-    shutdown("KeyboardInterrupt")
+except Exception as e:
+    shutdown(str(e))
         
 shutdown("Reached EOF.  That wasn't supposed to happen.")

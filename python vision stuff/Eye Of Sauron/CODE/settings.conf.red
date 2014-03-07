@@ -21,11 +21,11 @@ value_lower = 185
 yellow_pixel_thresh = 70
 delay_every_cycle=0.1
 [tracking]
-hue_upper = 120
-hue_lower = 30
-saturation_upper = 1
+hue_upper = 30
+hue_lower = 1
+saturation_upper = 180
 saturation_lower = 30
-value_upper = 175
+value_upper = 255
 value_lower = 50
 upper_bump_detect=80
 lower_bump_detect=140
