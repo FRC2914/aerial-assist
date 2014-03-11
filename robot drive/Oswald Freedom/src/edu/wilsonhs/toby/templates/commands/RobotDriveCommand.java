@@ -31,6 +31,7 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
     private boolean locked = true;
     private double forwardModifier;
     private Packet lastSent;
+    public boolean fireButtonDownLastLoop = false;
 
     public RobotDriveCommand() {
         requires(serverSubsystem);
@@ -68,11 +69,16 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
         } else {
             mode.onCommand(packet.getBody());
         }
+        
+        if(!fireButtonDownLastLoop && OI.STICK.getRawButton(1)){
+//            ca
+        }
     }
 
     public void onConnectToClient() {
 //        serverSubsystem.sendPacket(new Packet("p"));
 //        pingTimeout = System.currentTimeMillis();
+        serverSubsystem.sendPacket(new Packet("mnone"));
         lastSent = null;
     }
 
@@ -89,8 +95,9 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
         if (OI.STICK.getRawButton(2)) {
             toSend = new Packet("mshooting");
         }
-        if (!(mode instanceof ModeAutonomous)) {
-            toSend = new Packet("mautonomous");
+        if (!(mode instanceof ModeAutonomous) && DriverStation.getInstance().isAutonomous()) {
+//            toSend = new Packet("mautonomous");
+            armSubsystem.retractArm();
         }
         if (toSend != null) {
             if (!toSend.equals(lastSent)) {
@@ -107,19 +114,31 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
     }
 
     protected void execute() {
-        System.out.println("driving?");
         double switchY = OI.STICK.getRawAxis(6);
         if (switchY == 1.0) {
             locked = false;
         } else if (switchY == -1.0) {
             locked = true;
         }
+        
+        if(OI.STICK.getRawButton(3)){
+            armSubsystem.retractArm();
+        }else if(OI.STICK.getRawButton(5)){
+            armSubsystem.deployArm();
+        }
+        
+        if(OI.STICK.getRawButton(6)){
+            RobotMap.INTAKE_MOTOR.set(OI.STICK.getThrottle()*2.0 - 1.0);
+        }else{
+            RobotMap.INTAKE_MOTOR.set(0);
+        }
 
         if (!DriverStation.getInstance().isAutonomous()) {
             if (locked) {
-                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, mode.getRotation(), 0);
+                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, -mode.getRotation(), 0);
             } else {
-                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, deadzone(OI.STICK.getTwist()), 0);
+                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, -deadzone(OI.STICK.getTwist()), 0);
+//                RobotMap.CHASSIS.mecanumDrive_Cartesian(0, 0, 0, 0);
             }
         }
     }
@@ -133,10 +152,11 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
     }
     
     private double deadzone(double twist){
-        if(Math.abs(twist) < 0.2){
+        if(Math.abs(twist) < 0.3){
             return 0;
         }
-        return MathUtils.pow(twist, 2) * (twist/Math.abs(twist));
+        System.out.println(twist);
+        return twist;
     }
 
     protected boolean isFinished() {

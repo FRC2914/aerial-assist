@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wilsonhs.toby.templates.OI;
 import edu.wilsonhs.toby.templates.subsystems.ActiveRotationCorrectionSubsystem;
 import edu.wilsonhs.toby.templates.subsystems.ArmSubsystem;
+import edu.wilsonhs.toby.templates.subsystems.CatapultSubsystem;
 import edu.wilsonhs.toby.templates.subsystems.ExampleSubsystem;
 import edu.wilsonhs.toby.templates.subsystems.ServerSubsystem;
 
@@ -21,6 +22,7 @@ public abstract class CommandBase extends Command {
     public static ServerSubsystem serverSubsystem = new ServerSubsystem();
     public static ActiveRotationCorrectionSubsystem activeRotationCorrectionSubsystem = new ActiveRotationCorrectionSubsystem();
     public static ArmSubsystem armSubsystem = new ArmSubsystem();
+    public static CatapultSubsystem catapultSubsystem = new CatapultSubsystem();
     public static OI oi;
     // Create a single static instance of all of your subsystems
     public static ExampleSubsystem exampleSubsystem = new ExampleSubsystem();

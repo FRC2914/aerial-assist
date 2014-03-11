@@ -18,7 +18,7 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     private double PIDoutput;
 
     public ActiveRotationCorrectionSubsystem(){
-        super(.05, 0, 0.13);//0.05,0,0.13 is really good!
+        super(.02, 0, 0.02);//0.05,0,0.13 is really good!
         //oswald setting: 0.02,0,0.02
         enable();
     }
@@ -34,7 +34,7 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     }
 
     protected double returnPIDInput() {
-        return getAngle();
+        return getAngle() - desiredHeading;
     }
 
     protected void usePIDOutput(double d) {

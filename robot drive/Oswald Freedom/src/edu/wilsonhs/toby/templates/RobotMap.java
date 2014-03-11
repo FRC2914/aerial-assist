@@ -21,6 +21,8 @@ public class RobotMap {
     public static final Relay COMPRESSOR = new Relay(1);
     public static final Solenoid INTAKE_OUT = new Solenoid(1);
     public static final Solenoid INTAKE_IN = new Solenoid(2);
+    public static final Solenoid CATAPULT_OUT = new Solenoid(3);
+    public static final Solenoid CATAPULT_IN = new Solenoid(4);
 //Sensors
     public static final Gyro GYRO = new Gyro(1);
     public static final DigitalInput PRESSURE_SWITCH = new DigitalInput(1);

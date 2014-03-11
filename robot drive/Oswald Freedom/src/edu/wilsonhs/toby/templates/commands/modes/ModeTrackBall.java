@@ -22,8 +22,10 @@ public class ModeTrackBall extends Mode{
     }
 
     public void onCommand(String[] command) {
-        int x = Integer.parseInt(command[1]);
-        CommandBase.activeRotationCorrectionSubsystem.setRelativeHeading(-(((x-160)/160.0) * 21.0));
+        if(command[0].equals("ball")){
+            int x = Integer.parseInt(command[1]);
+            CommandBase.activeRotationCorrectionSubsystem.setRelativeHeading(-(((x-160)/160.0) * 21.0));
+        }
     }
     
 }

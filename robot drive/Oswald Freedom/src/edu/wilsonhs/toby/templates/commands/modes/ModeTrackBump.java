@@ -22,8 +22,10 @@ public class ModeTrackBump extends Mode{
     }
 
     public void onCommand(String[] command) {
+        if(command[0].equals("bump")){
         int x = Integer.parseInt(command[1]);
-        CommandBase.activeRotationCorrectionSubsystem.setRelativeHeading(((x-160)/160.0) * 21.0);
+        System.out.println(((x-160)/160.0) * 21.0);
+        CommandBase.activeRotationCorrectionSubsystem.setRelativeHeading(((x-160)/160.0) * 5.0);
     }
-    
+    }
 }

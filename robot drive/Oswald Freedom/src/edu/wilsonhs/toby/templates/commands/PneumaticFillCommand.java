@@ -22,7 +22,7 @@ public class PneumaticFillCommand extends CommandBase{
     }
 
     protected void execute() {
-        if(RobotMap.PRESSURE_SWITCH.get() && !switchBroken && !filling){
+        if(!RobotMap.PRESSURE_SWITCH.get() && !switchBroken && !filling){
             new Thread(){
                 public void run() {
                     filling = true;
