@@ -34,7 +34,7 @@ def autonomous(capture):
 #    turn it into a binary image representing yellows
     inrangepixels = cv2.inRange(hsvcapture, np.array((auto_hue_lower, auto_saturation_lower, auto_value_lower)), np.array((auto_hue_upper, auto_saturation_upper, auto_value_upper)))  # in opencv, HSV is 0-180,0-255,0-255
     yellows = cv2.countNonZero(inrangepixels)
-    
+    print "yellows: " + str(yellows)
     if draw_gui:
         cv2.rectangle(capture,(0,0),(frame_width,frame_height),(255,0,0),5)
         cv2.putText(capture,"Mode: autonomous",(10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(255,0,0))  

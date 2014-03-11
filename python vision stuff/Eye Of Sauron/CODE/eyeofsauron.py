@@ -53,11 +53,11 @@ import logger
 
 def shutdown(logmessage):
     try:
+        logger.log(time.time()-start_time,"Shutting down: " + logmessage, 20)
         sock.close()    
         cv2.destroyAllWindows()
         frontcamera.release()
         rearcamera.release()
-        logger.log(time.time()-start_time,"Shutting down: " + logger.logmessage, 20)
     except Exception as e:
         logger.log(time.time()-start_time,"Had trouble shutting down: "+ str(e), 50)
     sys.exit(logmessage)
@@ -87,7 +87,7 @@ def establishconnection(ip,port):
                 sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
                 raise Exception("cRIO not responding")
         except Exception as e:
-            logger.log(time.time()-start_time,"Coudn't connect to cRIO. Details:" + str(e), 50)
+            logger.log(time.time()-start_time,"Couldn't connect to cRIO. Details:" + str(e), 50)
             time.sleep(2)
             continue         
     return None
@@ -105,6 +105,7 @@ width = int(config.get('camera','width'))
 #debug
 skip_gui = len(sys.argv) >= 2 and sys.argv[1] == "--nogui"
 
+logger.log(0,config.get('color','color'),30)
 #set up cameras. If that fails, don't bother connecting to cRIO, just exit
 frontcamera = cv2.VideoCapture(0)
 frontcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 0.05 gives dark image. 0.10 gives bright image.
@@ -173,6 +174,7 @@ try:
             logger.log(time.time()-start_time,"Sending to cRio: " + packetforcrio, 10)
             try:
                 sock.send(packetforcrio + "\n")
+		logger.log(time.time()-start_time,"sending: " + packetforcrio,10)
             except Exception as e:
                 logger.log(time.time()-start_time,"Could not send packet. Details: " + str(e), 40)
                 if str(e)[:10] == "[Errno 32]":
@@ -189,7 +191,7 @@ try:
                     
         if cv2.waitKey(1) == 27:
             break
-except Exception as e:
+except KeyboardInterrupt as e:
     shutdown(str(e))
         
 shutdown("Reached EOF.  That wasn't supposed to happen.")

@@ -27,3 +27,5 @@ def log(secs, message, lvl):
         logging.critical("[" + secs + "]: " + message)
     else:
         logging.error("[" + secs + "]: Bad error level (" + str(lvl) + "): " + message)
+
+    logging.getLogger().handlers[0].flush()
