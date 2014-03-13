@@ -135,9 +135,10 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
 
         if (!DriverStation.getInstance().isAutonomous()) {
             if (locked) {
+                System.out.println("turn: " + mode.getRotation());
                 RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, -mode.getRotation(), 0);
             } else {
-                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, -deadzone(OI.STICK.getTwist()), 0);
+//                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, -deadzone(OI.STICK.getTwist()), 0);
 //                RobotMap.CHASSIS.mecanumDrive_Cartesian(0, 0, 0, 0);
             }
         }

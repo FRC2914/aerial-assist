@@ -18,7 +18,7 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     private double PIDoutput;
 
     public ActiveRotationCorrectionSubsystem(){
-        super(.02, 0, 0.02);//0.05,0,0.13 is really good!
+        super(.03, 0, 0.13);//0.05,0,0.13 is really good!
         //oswald setting: 0.02,0,0.02
         enable();
     }
@@ -42,7 +42,7 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     }
 
     public void setRelativeHeading(double heading){
-        desiredHeading = RobotMap.GYRO.getAngle()%360 + heading;
+        desiredHeading = getAngle()%360 + heading;
     }
 
     public void setAbsoluteHeading(double heading){

@@ -152,6 +152,7 @@ public class ServerSubsystem extends Subsystem {
                         resetConnetion();
                         ex.printStackTrace();
                     } catch (InterruptedException ex) {
+                        resetConnetion();
                         ex.printStackTrace();
                     }
                     if (queReset) {
