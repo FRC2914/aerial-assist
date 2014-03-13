@@ -171,10 +171,9 @@ try:
         
         #Send Packets
         if packetforcrio != "" and send_over_network=="True":
-            logger.log(time.time()-start_time,"Sending to cRio: " + packetforcrio, 10)
             try:
                 sock.send(packetforcrio + "\n")
-		logger.log(time.time()-start_time,"sending: " + packetforcrio,10)
+		logger.log(time.time()-start_time,"Sent: " + packetforcrio,10)
             except Exception as e:
                 logger.log(time.time()-start_time,"Could not send packet. Details: " + str(e), 40)
                 if str(e)[:10] == "[Errno 32]":

@@ -1,4 +1,5 @@
-[tracking blue; am blue]
+[color]
+color=red
 [camera]
 exposure = 0.25
 width = 320
