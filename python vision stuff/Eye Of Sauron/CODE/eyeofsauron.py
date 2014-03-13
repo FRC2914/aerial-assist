@@ -114,11 +114,11 @@ if swap_cameras == "True":
     frontid=1
 else:
     rearid=1
-frontcamera = cv2.VideoCapture(0)
+frontcamera = cv2.VideoCapture(frontid)
 frontcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 0.05 gives dark image. 0.10 gives bright image.
 frontcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
 frontcamera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
-rearcamera = cv2.VideoCapture(1)
+rearcamera = cv2.VideoCapture(rearid)
 rearcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 0.05 gives dark image. 0.10 gives bright image.
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
