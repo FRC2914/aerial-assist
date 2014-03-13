@@ -104,9 +104,16 @@ width = int(config.get('camera','width'))
 
 #debug
 skip_gui = len(sys.argv) >= 2 and sys.argv[1] == "--nogui"
+swap_cameras = config.get('debug','swap_cameras')
 
 logger.log(0,config.get('color','color'),30)
 #set up cameras. If that fails, don't bother connecting to cRIO, just exit
+frontid=0
+rearid=0
+if swap_cameras == "True":
+    frontid=1
+else:
+    rearid=1
 frontcamera = cv2.VideoCapture(0)
 frontcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 0.05 gives dark image. 0.10 gives bright image.
 frontcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
