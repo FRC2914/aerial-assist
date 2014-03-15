@@ -14,11 +14,15 @@ import numpy as np
 import socket
 import ConfigParser
 import sys
-
+import os
 
 cap = cv2.VideoCapture(1)
 cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,320)
 cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,240)
+os.system("v4l2-ctl --set-ctrl gain_automatic=0 --device=0")
+os.system("v4l2-ctl --set-ctrl gain_automatic=0 --device=1")
+os.system("v4l2-ctl --set-ctrl gain_automatic=0 --device=2")
+
 start=[]
 def on_mouse(event, x, y, flags, params):
     if event == cv2.cv.CV_EVENT_LBUTTONDOWN:

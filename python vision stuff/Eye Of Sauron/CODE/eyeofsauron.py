@@ -108,6 +108,9 @@ swap_cameras = config.get('debug','swap_cameras')
 
 logger.log(0,config.get('color','color'),30)
 #set up cameras. If that fails, don't bother connecting to cRIO, just exit
+os.system("v4l2-ctl --set-ctrl gain_automatic=0 --device=0")#don't ask me how long it took to figure this out...
+os.system("v4l2-ctl --set-ctrl gain_automatic=0 --device=1")
+os.system("v4l2-ctl --set-ctrl gain_automatic=0 --device=2")
 frontid=0
 rearid=0
 if swap_cameras == "True":
