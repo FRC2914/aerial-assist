@@ -43,6 +43,7 @@ import sys
 import time
 import select
 import string
+import os
 
 import cv2
 import numpy as np
@@ -98,7 +99,7 @@ start_time=time.time()
 config = ConfigParser.RawConfigParser()
 config.read("settings.conf")
 log_fps=config.get('debug','log_fps')
-exposure = float(config.get('camera','exposure'))
+exposure = int(config.get('camera','exposure'))
 height = int(config.get('camera','height'))
 width = int(config.get('camera','width'))
 
@@ -118,11 +119,13 @@ if swap_cameras == "True":
 else:
     rearid=1
 frontcamera = cv2.VideoCapture(frontid)
-frontcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 0.05 gives dark image. 0.10 gives bright image.
+os.system("v4l2-ctl --set-ctrl exposure_auto=1 --device=1")
+os.system("v4l2-ctl --set-ctrl exposure_absolute=" + str(exposure) +" --device="+str(frontid))
 frontcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
 frontcamera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
 rearcamera = cv2.VideoCapture(rearid)
-rearcamera.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure) #time in milliseconds. 0.05 gives dark image. 0.10 gives bright image.
+os.system("v4l2-ctl --set-ctrl exposure_auto=1 --device=1")
+os.system("v4l2-ctl --set-ctrl exposure_absolute=" + str(exposure) +" --device="+str(rearid))
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,width)
 rearcamera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,height)
 if frontcamera.get(3)==0.0:

@@ -1,7 +1,7 @@
 [color]
 color=blue
 [camera]
-exposure = 0.25
+exposure = 170
 width = 320
 height = 240
 [network_communication]
