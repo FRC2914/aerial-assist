@@ -17,8 +17,9 @@ import edu.wilsonhs.toby.templates.commands.RobotDriveCommand;
 public class ModeTrackBump extends Mode {
 
     private double rotation = 0.0;
-    private static final double ROTATION_PROPORTION_CONSTANT = 0.6;
-    private static final long CUTOFF_TIME = 333;
+    private static final double ROTATION_PROPORTION_CONSTANT = 0.4;
+    private static final long ROTATION_TIMEOUT = 333;
+    private static final long DRIVE_TIMEOUT = 333;
     private static final int DEADZONE = 10;
     private static final double INITIAL_POWER = 0.1;
     private long timeout;
@@ -31,23 +32,25 @@ public class ModeTrackBump extends Mode {
     public void onCommand(String[] command) {
         if (command[0].equals("bump")) {
             int x = Integer.parseInt(command[1]);
-            if (x != 0 || Math.abs(x) < DEADZONE) {
-                System.out.println(((x - 160) / 160.0) * 21.0);
-                rotation = (Math.abs((x - 160) / 160.0)/((x - 160) / 160.0))*MathUtils.pow((x - 160) / 160.0,2) * -ROTATION_PROPORTION_CONSTANT;
-                if(rotation < 0){
+            int weight = Integer.parseInt(command[3]);
+            if (weight != 0 && Math.abs(x) > DEADZONE) {
+//                rotation = (Math.abs((x - 160) / 160.0) / ((x - 160) / 160.0)) * MathUtils.pow((x - 160) / 160.0, 2) * -ROTATION_PROPORTION_CONSTANT;
+                rotation = ((x - 160) / 160.0) * ROTATION_PROPORTION_CONSTANT;
+                if (rotation < 0) {
                     rotation -= INITIAL_POWER;
-                }else{
+                } else {
                     rotation += INITIAL_POWER;
                 }
+                System.out.println(rotation);
                 timeout = System.currentTimeMillis();
-            }else if( Math.abs(x) < DEADZONE){
+            } else if (Math.abs(x) < DEADZONE && weight != 0) {
                 timeout = System.currentTimeMillis();
             }
         }
     }
 
     public double getRotation() {
-        if (System.currentTimeMillis() - timeout < CUTOFF_TIME) {
+        if (System.currentTimeMillis() - timeout < ROTATION_TIMEOUT) {
             return rotation;
         } else {
             return 0;

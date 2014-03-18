@@ -18,13 +18,13 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     private double PIDoutput;
 
     public ActiveRotationCorrectionSubsystem(){
-        super(.03, 0, 0.13);//0.05,0,0.13 is really good!
+        super(.05, 0, 0.13);//0.05,0,0.13 is really good!
         //oswald setting: 0.02,0,0.02
         enable();
     }
     
     public double getAngle(){
-        double gyroAngle = -RobotMap.GYRO.getAngle()%360;
+        double gyroAngle = RobotMap.GYRO.getAngle()%360;
         if(gyroAngle < -180){
             gyroAngle = (360 + gyroAngle);
         }else if(gyroAngle > 180){
@@ -34,7 +34,7 @@ public class ActiveRotationCorrectionSubsystem extends PIDSubsystem{
     }
 
     protected double returnPIDInput() {
-        return getAngle() - desiredHeading;
+        return getAngle();
     }
 
     protected void usePIDOutput(double d) {

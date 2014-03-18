@@ -109,8 +109,9 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
 
     protected void initialize() {
         RobotMap.GYRO.reset();
-        RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, true);
-        RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
+        System.out.println("motors inverted");
+        RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
+        RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
     }
 
     protected void execute() {
@@ -136,9 +137,16 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
         if (!DriverStation.getInstance().isAutonomous()) {
             if (locked) {
                 System.out.println("turn: " + mode.getRotation());
-                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, -mode.getRotation(), 0);
+                double move = OI.STICK.getY();
+                if(mode instanceof ModeTrackBall){
+                    ModeTrackBall tempMode = (ModeTrackBall)mode;
+                    if(tempMode.getPower() != 0.0){
+                        move = tempMode.getPower();
+                    }
+                }
+                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), move * forwardModifier, -mode.getRotation(), 0);
             } else {
-//                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, -deadzone(OI.STICK.getTwist()), 0);
+                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, -deadzone(OI.STICK.getTwist()), 0);
 //                RobotMap.CHASSIS.mecanumDrive_Cartesian(0, 0, 0, 0);
             }
         }
