@@ -1,7 +1,7 @@
 [color]
 color=red
 [camera]
-exposure = 0.25
+exposure = 170
 width = 320
 height = 240
 [network_communication]
@@ -22,12 +22,12 @@ value_lower = 185
 yellow_pixel_thresh = 70
 delay_every_cycle=0.1
 [tracking]
-hue_upper = 30
-hue_lower = 1
-saturation_upper = 180
-saturation_lower = 30
-value_upper = 255
-value_lower = 50
+hue_upper = 5
+hue_lower = 0
+saturation_upper = 250
+saturation_lower = 215
+value_upper = 170
+value_lower = 80
 upper_bump_detect=130
 lower_bump_detect=200
 min_contour_area = 2500

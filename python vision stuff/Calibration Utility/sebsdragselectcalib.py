@@ -14,11 +14,15 @@ import numpy as np
 import socket
 import ConfigParser
 import sys
-
+import os
 
 cap = cv2.VideoCapture(1)
 cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,320)
 cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,240)
+os.system("v4l2-ctl --set-ctrl exposure_auto=1 --device=1")
+exposure=170
+os.system("v4l2-ctl --set-ctrl exposure_absolute=" + str(exposure) +" --device=1")
+
 start=[]
 def on_mouse(event, x, y, flags, params):
     if event == cv2.cv.CV_EVENT_LBUTTONDOWN:
@@ -70,8 +74,6 @@ def on_mouse(event, x, y, flags, params):
     
         
 print __doc__
-exposure=0.25
-cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)
 print "exposure: " + str(exposure) 
 lines=[]
 while(1):
@@ -84,16 +86,14 @@ while(1):
     cv2.imshow('real image', img)
     key_pressed = cv2.waitKey(25)
     if key_pressed == 65364:#2621440 on windows
-        exposure=exposure-0.03
+        exposure=exposure-10
 	print "expected exposure: " + str(exposure)
-        cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)
-	cv2.waitKey(250)
-        print "exposure: " + str(cap.get(cv2.cv.CV_CAP_PROP_EXPOSURE))
+	os.system("v4l2-ctl --set-ctrl exposure_absolute=" + str(exposure) +" --device=1")
+	cv2.waitKey(1000)
     elif key_pressed == 65362:#2490368 on widows
-        exposure=exposure+0.03
+        exposure=exposure+10
 	print "expected exposure: " + str(exposure)
-        cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE,exposure)
-	cv2.waitKey(250)
-        print "exposure: " + str(cap.get(cv2.cv.CV_CAP_PROP_EXPOSURE))
+	os.system("v4l2-ctl --set-ctrl exposure_absolute=" + str(exposure) +" --device=1")
+	cv2.waitKey(1000)
     elif key_pressed == 32:
         lines=lines[:len(lines)-1]#remove most recent
