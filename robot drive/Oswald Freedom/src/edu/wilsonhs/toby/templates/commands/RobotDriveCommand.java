@@ -32,6 +32,7 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
     private double forwardModifier;
     private Packet lastSent;
     public boolean fireButtonDownLastLoop = false;
+    private boolean ballSwitchLastPos = false;
 
     public RobotDriveCommand() {
         requires(serverSubsystem);
@@ -139,9 +140,8 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
                 System.out.println("turn: " + mode.getRotation());
                 double move = OI.STICK.getY();
                 if(mode instanceof ModeTrackBall){
-                    ModeTrackBall tempMode = (ModeTrackBall)mode;
-                    if(tempMode.getPower() != 0.0){
-                        move = tempMode.getPower();
+                    if(((ModeTrackBall)mode).getPower() != 0.0){
+                        move = ((ModeTrackBall)mode).getPower();
                     }
                 }
                 RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), move * forwardModifier, -mode.getRotation(), 0);
@@ -149,6 +149,11 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
                 RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, -deadzone(OI.STICK.getTwist()), 0);
 //                RobotMap.CHASSIS.mecanumDrive_Cartesian(0, 0, 0, 0);
             }
+            
+            if(RobotMap.BALL_SWITCH.get() && !ballSwitchLastPos){
+                serverSubsystem.sendPacket(new Packet("mshooting"));
+            }
+            ballSwitchLastPos = RobotMap.BALL_SWITCH.get();
         }
     }
 
