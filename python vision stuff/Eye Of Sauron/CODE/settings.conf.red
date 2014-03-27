@@ -24,10 +24,10 @@ delay_every_cycle=0.1
 [tracking]
 hue_upper = 5
 hue_lower = 0
-saturation_upper = 250
-saturation_lower = 215
-value_upper = 170
-value_lower = 80
+saturation_upper = 255
+saturation_lower = 105
+value_upper = 200
+value_lower = 60
 upper_bump_detect=130
 lower_bump_detect=200
 min_contour_area = 2500

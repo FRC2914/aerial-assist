@@ -73,6 +73,7 @@ def trackball(capture):
     dilate = cv2.dilate(inrangepixels,None,iterations = 5)
     erode = cv2.erode(dilate,None,iterations = 10)
     dilatedagain = cv2.dilate(erode,None,iterations = 5)  
+    reds = cv2.countNonZero(dilatedagain)
     contours,hierarchy = cv2.findContours(dilatedagain,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     
     if draw_gui:
@@ -81,6 +82,8 @@ def trackball(capture):
     else:
         capture=None
     #make a arrays of balls, ball sizes and ball centroids
+    if reds>40000:
+		return(capture,"tball,160,120,99999")
     balls = []
     for contour in contours:
         if mathstuff.is_contour_a_ball(contour):
