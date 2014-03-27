@@ -147,11 +147,7 @@ public class ServerSubsystem extends Subsystem {
                 while (true) {
                     try {
                         recieveData();
-                        Thread.sleep(20);
                     } catch (IOException ex) {
-                        resetConnetion();
-                        ex.printStackTrace();
-                    } catch (InterruptedException ex) {
                         resetConnetion();
                         ex.printStackTrace();
                     }

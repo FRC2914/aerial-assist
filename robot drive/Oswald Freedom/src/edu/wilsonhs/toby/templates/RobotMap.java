@@ -26,4 +26,5 @@ public class RobotMap {
 //Sensors
     public static final Gyro GYRO = new Gyro(1);
     public static final DigitalInput PRESSURE_SWITCH = new DigitalInput(1);
+    public static final DigitalInput BALL_SWITCH = new DigitalInput(2);
 }
