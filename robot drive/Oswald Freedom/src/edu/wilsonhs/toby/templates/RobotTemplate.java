@@ -60,6 +60,7 @@ public class RobotTemplate extends IterativeRobot {
     }
 
     public void teleopInit() {
+        robotDriveCommand.cancel();
         robotDriveCommand.start();
         pneumaticFill.start();
 	// This makes sure that the autonomous stops running when

@@ -125,6 +125,7 @@ public class ServerSubsystem extends Subsystem {
     }
 
     private void sendData(String msg) {
+        if(os != null){
         try {
             for (int i = 0; i < msg.length(); i++) {
                 os.write((int) msg.charAt(i));
@@ -134,6 +135,7 @@ public class ServerSubsystem extends Subsystem {
         } catch (IOException ex) {
             queReset();
             ex.printStackTrace();
+        }
         }
 
         if (!msg.equals("p\n")) {
@@ -153,6 +155,11 @@ public class ServerSubsystem extends Subsystem {
                     }
                     if (queReset) {
                         resetConnetion();
+                    }
+                    try {
+                        Thread.sleep(20);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
                     }
                 }
             }

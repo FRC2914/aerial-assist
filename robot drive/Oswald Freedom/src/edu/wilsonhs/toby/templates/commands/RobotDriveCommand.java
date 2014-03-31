@@ -71,9 +71,6 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
             mode.onCommand(packet.getBody());
         }
         
-        if(!fireButtonDownLastLoop && OI.STICK.getRawButton(1)){
-//            ca
-        }
     }
 
     public void onConnectToClient() {
@@ -111,22 +108,35 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
     protected void initialize() {
         RobotMap.GYRO.reset();
         System.out.println("motors inverted");
-        RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
-        RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
+        RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, true);
+        RobotMap.CHASSIS.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
     }
 
     protected void execute() {
+        System.out.println(RobotMap.BALL_SWITCH.get());
         double switchY = OI.STICK.getRawAxis(6);
         if (switchY == 1.0) {
             locked = false;
         } else if (switchY == -1.0) {
             locked = true;
         }
-        
+        if(OI.STICK.getRawButton(1)){
+            catapultSubsystem.startTension();
+        }else if(fireButtonDownLastLoop){
+            catapultSubsystem.fire();
+        }else if(OI.STICK.getRawButton(7)){
+            catapultSubsystem.startDetension();
+        }else{
+            catapultSubsystem.stopTension();
+        }
         if(OI.STICK.getRawButton(3)){
             armSubsystem.retractArm();
         }else if(OI.STICK.getRawButton(5)){
             armSubsystem.deployArm();
+        }
+        
+        if(OI.STICK.getRawButton(11) && OI.STICK.getRawButton(12)){
+            RobotMap.GYRO.reset();
         }
         
         if(OI.STICK.getRawButton(6)){
@@ -144,17 +154,20 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
                         move = ((ModeTrackBall)mode).getPower();
                     }
                 }
-                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), move * forwardModifier, -mode.getRotation(), 0);
+                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), move * forwardModifier, mode.getRotation(), 0);
             } else {
-                RobotMap.CHASSIS.mecanumDrive_Cartesian(OI.STICK.getX(), OI.STICK.getY() * forwardModifier, -deadzone(OI.STICK.getTwist()), 0);
+                RobotMap.CHASSIS.mecanumDrive_Cartesian(-forwardModifier * OI.STICK.getX(), OI.STICK.getY() * -forwardModifier, -deadzone(OI.STICK.getTwist()), 0);
 //                RobotMap.CHASSIS.mecanumDrive_Cartesian(0, 0, 0, 0);
             }
             
-            if(RobotMap.BALL_SWITCH.get() && !ballSwitchLastPos){
+            if(!RobotMap.BALL_SWITCH.get() && ballSwitchLastPos){
                 serverSubsystem.sendPacket(new Packet("mshooting"));
+                mode = new ModeShooting(this);
+                locked = true;
             }
             ballSwitchLastPos = RobotMap.BALL_SWITCH.get();
         }
+        fireButtonDownLastLoop = OI.STICK.getRawButton(1);
     }
 
     public void setFaceForwards(boolean faceForwards) {
@@ -170,7 +183,7 @@ public class RobotDriveCommand extends CommandBase implements NetworkListener {
             return 0;
         }
         System.out.println(twist);
-        return twist;
+        return (Math.abs(twist)/twist)*MathUtils.pow(twist, 2);
     }
 
     protected boolean isFinished() {

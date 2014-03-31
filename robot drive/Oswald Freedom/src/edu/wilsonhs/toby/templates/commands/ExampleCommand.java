@@ -23,11 +23,11 @@ public class ExampleCommand extends CommandBase {
     }
 
     // Called repeatedly when this Command is scheduled to run
-    protected void execute() {
+    protected void execute(){
         if(!hasRun){
             try {
                 RobotMap.CHASSIS.mecanumDrive_Cartesian(0, 1, 0, 0);
-                Thread.sleep(2000);
+                Thread.sleep(3000);
                 RobotMap.CHASSIS.mecanumDrive_Cartesian(0, 0, 0, 0);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();

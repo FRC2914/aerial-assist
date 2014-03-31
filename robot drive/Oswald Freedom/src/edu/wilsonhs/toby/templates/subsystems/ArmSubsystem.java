@@ -19,13 +19,13 @@ public class ArmSubsystem extends Subsystem {
     }
 
     public void deployArm() {
-        RobotMap.INTAKE_OUT.set(true);
-        RobotMap.INTAKE_IN.set(false);
+        RobotMap.INTAKE_OUT.set(false);
+        RobotMap.INTAKE_IN.set(true);
     }
 
     public void retractArm() {
-        RobotMap.INTAKE_OUT.set(false);
-        RobotMap.INTAKE_IN.set(true);
+        RobotMap.INTAKE_OUT.set(true);
+        RobotMap.INTAKE_IN.set(false);
     }
 
     public void setIntakeMotor(double speed) {
