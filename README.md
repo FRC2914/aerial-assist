@@ -1,5 +1,7 @@
 2914FRC2014
 ===========
+This code is released under the BSD 2-clause license. Check out the file called LICENSE.
+
 Robot code and vision tracking code for 2914's 2014 Bot
 
 Prerequisites:
