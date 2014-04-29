@@ -50,4 +50,4 @@ min_pixel_weight=2000
 log_fps=True
 crio_on_localhost=False
 log_level=5
-swap_cameras=False
+swap_cameras=True

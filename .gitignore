@@ -6,3 +6,6 @@
 *.pyc
 *.log.*
 *.log
+/robot drive/Oswald Freedom/build/
+/robot drive/Oswald Freedom/nbproject/private/
+*.pydevproject
